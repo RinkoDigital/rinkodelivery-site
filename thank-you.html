@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id=GTM-QRBVNFPL'+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-QRBVNFPL');
+</script>
+<!-- End Google Tag Manager -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Request Received | Rinko Delivery</title>
+  <style>
+    :root{--navy:#04162c;--orange:#ff8a2a;--bg:#f5f8fc;--text:#17304d;--muted:#64758a;--border:#dbe5f0;}
+    body{font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,rgba(255,138,42,.18),transparent 30%),var(--bg);display:grid;place-items:center;min-height:100vh;margin:0;padding:24px;color:var(--text)}
+    .box{background:white;padding:34px;border-radius:24px;text-align:left;box-shadow:0 18px 45px rgba(0,0,0,.10);max-width:720px;width:100%;border:1px solid var(--border)}
+    .logo{display:flex;align-items:center;gap:12px;font-weight:900;color:var(--navy);margin-bottom:22px}.logo img{height:44px;width:auto}
+    h1{color:var(--navy);margin:0 0 10px;font-size:clamp(2rem,5vw,3rem)}p{color:var(--muted);line-height:1.65}.success{display:inline-flex;background:#eaf8ef;color:#16713a;border:1px solid #bfe9ca;border-radius:999px;padding:9px 13px;font-weight:900;font-size:.9rem;margin-bottom:14px}
+    .summary{margin:22px 0;border:1px solid var(--border);border-radius:18px;overflow:hidden}.row{display:flex;justify-content:space-between;gap:20px;padding:13px 16px;border-bottom:1px solid #edf2f7}.row:last-child{border-bottom:0}.row span{color:var(--muted)}.row strong{text-align:right;color:var(--navy)}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}a{display:inline-block;background:var(--orange);color:white;padding:13px 18px;border-radius:999px;text-decoration:none;font-weight:900}.secondary{background:var(--navy)}.ghost{background:#eef4fb;color:var(--navy)}
+    .note{background:#fff7ef;border:1px solid #ffd8b8;color:#7a3d08;border-radius:16px;padding:14px;margin-top:16px}
+  </style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-QRBVNFPL" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <div class="box">
+    <div class="logo"><img src="site-logo-header.png" alt="Rinko Delivery logo" onerror="this.style.display='none'"> Rinko Delivery</div>
+    <span class="success">Request received</span>
+    <h1>Thank you!</h1>
+    <p>We received your delivery request. Rinko Delivery will review the route, item details, timing, and availability before confirming the final delivery by email or phone when needed.</p>
+
+    <div class="summary" id="orderSummary" style="display:none;">
+      <div class="row"><span>Order ID</span><strong id="sOrder">—</strong></div>
+      <div class="row"><span>Estimated total</span><strong id="sTotal">—</strong></div>
+      <div class="row"><span>Pickup</span><strong id="sPickup">—</strong></div>
+      <div class="row"><span>Drop-off</span><strong id="sDropoff">—</strong></div>
+      <div class="row"><span>Distance</span><strong id="sDistance">—</strong></div>
+      <div class="row"><span>Service</span><strong id="sService">Sedan Delivery</strong></div>
+    </div>
+
+    <p class="note">No public scheduling is required. Your request is now in review, and we will confirm availability before pickup. This keeps the process clean for customers and prevents unconfirmed calendar bookings.</p>
+
+    <div class="actions">
+      <a href="order.html">Submit Another Request</a>
+      <a class="secondary" href="index.html#contact">Contact Rinko Delivery</a>
+      <a class="ghost" href="index.html">Back to Home</a>
+    </div>
+  </div>
+
+<script>
+window.dataLayer = window.dataLayer || [];
+function rinkoTrack(eventName, payload = {}) { dataLayer.push({ event: eventName, page_path: window.location.pathname, ...payload }); }
+rinkoTrack("order_thank_you_view");
+(function(){
+  try {
+    const last = JSON.parse(localStorage.getItem("RINKO_LAST_ORDER") || "null");
+    if (!last) return;
+    document.getElementById("orderSummary").style.display = "block";
+    document.getElementById("sOrder").textContent = last.order_id || new URLSearchParams(location.search).get("order") || "—";
+    document.getElementById("sTotal").textContent = last.estimated_total || "—";
+    document.getElementById("sPickup").textContent = last.pickup_address || "—";
+    document.getElementById("sDropoff").textContent = last.dropoff_address || "—";
+    document.getElementById("sDistance").textContent = last.distance_miles ? last.distance_miles + " mi" : "—";
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>

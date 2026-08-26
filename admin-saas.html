@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id=GTM-QRBVNFPL'+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-QRBVNFPL');
+</script>
+<!-- End Google Tag Manager -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rinko Admin SaaS</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/rinko-saas-config.js"></script>
+  <style>
+    :root {
+      --navy:#04162c;
+      --navy2:#102f57;
+      --orange:#ff8a2a;
+      --orange2:#ea7310;
+      --bg:#f4f7fb;
+      --text:#17304d;
+      --muted:#64758a;
+      --border:#dbe5f0;
+      --white:#fff;
+      --shadow:0 22px 60px rgba(15,39,71,.14);
+      --radius:24px;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,138,42,.22), transparent 26%),
+        linear-gradient(180deg, #04162c 0%, #102f57 32%, #f4f7fb 32%, #f4f7fb 100%);
+      color:var(--text);
+      min-height:100vh;
+    }
+    .shell { width:min(1200px, calc(100% - 28px)); margin:auto; padding:28px 0 60px; }
+    header { color:white; display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:34px; }
+    .brand { display:flex; align-items:center; gap:12px; font-weight:900; font-size:1.1rem; }
+    .brand-badge { width:42px; height:42px; border-radius:14px; display:grid; place-items:center; background:linear-gradient(135deg,var(--orange),var(--orange2)); }
+    .pill, button {
+      border:none;
+      border-radius:14px;
+      padding:13px 16px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .pill { background:rgba(255,255,255,.1); color:white; border:1px solid rgba(255,255,255,.18); }
+    .btn { background:linear-gradient(135deg,var(--orange),var(--orange2)); color:white; box-shadow:0 14px 30px rgba(255,138,42,.28); }
+    .btn.secondary { background:#eef5ff; color:var(--navy); box-shadow:none; border:1px solid var(--border); }
+    .btn.danger { background:#fff0f0; color:#9b1c1c; box-shadow:none; border:1px solid #ffd1d1; }
+    .login, .panel {
+      background:white;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+    }
+    .login { max-width:440px; margin:70px auto 0; }
+    h1, h2, h3 { margin:0 0 10px; color:var(--navy); }
+    .white-title { color:white; font-size:clamp(2.2rem,4vw,3.8rem); margin-bottom:10px; }
+    .hero-copy { color:rgba(255,255,255,.82); max-width:680px; margin:0 0 26px; line-height:1.65; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start; }
+    .full { grid-column:1/-1; }
+    label { display:grid; gap:7px; color:var(--navy); font-weight:800; margin-bottom:14px; }
+    input, select {
+      width:100%;
+      border:1px solid var(--border);
+      background:#f8fbff;
+      color:var(--text);
+      border-radius:14px;
+      padding:13px 14px;
+      font:inherit;
+      outline:none;
+    }
+    input:focus, select:focus { border-color:var(--orange); box-shadow:0 0 0 4px rgba(255,138,42,.13); background:white; }
+    .row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .row3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .muted { color:var(--muted); margin:0 0 18px; line-height:1.55; }
+    .table { width:100%; border-collapse:collapse; overflow:hidden; border-radius:16px; }
+    .table th, .table td { padding:14px; border-bottom:1px solid #edf2f7; text-align:left; font-size:.94rem; }
+    .table th { color:var(--navy); background:#f8fbff; }
+    .status { display:inline-flex; padding:6px 10px; border-radius:999px; font-weight:900; font-size:.78rem; }
+    .status.active { background:#ecfff1; color:#17602a; }
+    .status.off { background:#fff0f0; color:#8a1f1f; }
+    .msg { margin-top:12px; font-weight:900; color:#17602a; }
+    .hidden { display:none !important; }
+    @media(max-width:900px){ .grid, .row, .row3 { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<!-- GTM (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-QRBVNFPL"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <div class="shell">
+    <header>
+<!-- Google Tag Manager -->
+<script>
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id=GTM-QRBVNFPL'+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-QRBVNFPL');
+</script>
+<!-- End Google Tag Manager -->
+
+      <div class="brand"><span class="brand-badge">R</span><span>Rinko Admin SaaS</span></div>
+      <button class="pill hidden" id="logoutBtn">Logout</button>
+    </header>
+
+    <section id="loginView" class="login">
+      <h2>Admin Login</h2>
+      <p class="muted">Secure SaaS-style login using Supabase Auth.</p>
+      <label>Email
+        <input id="loginEmail" type="email" placeholder="you@email.com">
+      </label>
+      <label>Password
+        <input id="loginPassword" type="password" placeholder="Your password">
+      </label>
+      <button class="btn" id="loginBtn" style="width:100%;">Login</button>
+      <p class="msg" id="loginMsg"></p>
+    </section>
+
+    <section id="adminView" class="hidden">
+      <h1 class="white-title">Command Center</h1>
+      <p class="hero-copy">Manage Rinko Delivery pricing, coupons, internal senior/heavy rules, expiration dates, usage limits, and live settings from one SaaS-style dashboard.</p>
+
+      <div class="grid">
+        <div class="panel">
+          <h2>Pricing Settings</h2>
+          <p class="muted">These values power the quote calculator on the website and order portal.</p>
+
+          <div class="row3">
+            <label>Small Base Price
+              <input id="smallBase" type="number" step="0.01">
+            </label>
+            <label>Medium Base Price
+              <input id="mediumBase" type="number" step="0.01">
+            </label>
+            <label>Large Base Price
+              <input id="largeBase" type="number" step="0.01">
+            </label>
+          </div>
+
+          <div class="row">
+            <label>Price Per Mile
+              <input id="perMile" type="number" step="0.01">
+            </label>
+            <label>Express Fee
+              <input id="expressFee" type="number" step="0.01">
+            </label>
+          </div>
+
+          <div class="row">
+            <label>Heavy Item Fee
+              <input id="heavyFee" type="number" step="0.01">
+            </label>
+            <label>Minimum Price
+              <input id="minimumPrice" type="number" step="0.01">
+            </label>
+          </div>
+
+          <label>Internal Senior / Heavy Waiver Code
+            <input id="seniorCode" type="text">
+          </label>
+
+          <button class="btn" id="saveSettingsBtn">Save Settings</button>
+          <p class="msg" id="settingsMsg"></p>
+        </div>
+
+        <div class="panel">
+          <h2>Create Coupon</h2>
+          <p class="muted">Create marketing coupons with expiration and usage limits.</p>
+
+          <div class="row">
+            <label>Coupon Code
+              <input id="couponCode" type="text" placeholder="RINKO20">
+            </label>
+            <label>Discount %
+              <input id="couponDiscount" type="number" min="0" max="100" step="1" placeholder="20">
+            </label>
+          </div>
+
+          <div class="row">
+            <label>Expiration Date
+              <input id="couponExpires" type="datetime-local">
+            </label>
+            <label>Usage Limit
+              <input id="couponLimit" type="number" min="1" step="1" placeholder="100">
+            </label>
+          </div>
+
+          <label>Status
+            <select id="couponActive">
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+          </label>
+
+          <button class="btn" id="createCouponBtn">Create Coupon</button>
+          <p class="msg" id="couponMsg"></p>
+        </div>
+
+        <div class="panel full">
+          <h2>Coupon Manager</h2>
+          <p class="muted">View, disable, enable, reset usage, or delete coupons.</p>
+          <div style="overflow:auto;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Discount</th>
+                  <th>Expires</th>
+                  <th>Used / Limit</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="couponTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+const client = window.rinkoClient;
+
+const loginView = document.getElementById("loginView");
+const adminView = document.getElementById("adminView");
+const logoutBtn = document.getElementById("logoutBtn");
+
+function moneyValue(id) {
+  return Number(document.getElementById(id).value || 0);
+}
+
+async function checkSession() {
+  const { data } = await client.auth.getSession();
+  if (data.session) {
+    loginView.classList.add("hidden");
+    adminView.classList.remove("hidden");
+    logoutBtn.classList.remove("hidden");
+    await loadSettings();
+    await loadCoupons();
+  } else {
+    loginView.classList.remove("hidden");
+    adminView.classList.add("hidden");
+    logoutBtn.classList.add("hidden");
+  }
+}
+
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const msg = document.getElementById("loginMsg");
+  msg.textContent = "Checking login...";
+
+  const { error } = await client.auth.signInWithPassword({ email, password });
+  if (error) {
+    msg.textContent = "Login failed: " + error.message;
+    msg.style.color = "#8a1f1f";
+    return;
+  }
+
+  msg.textContent = "";
+  await checkSession();
+});
+
+logoutBtn.addEventListener("click", async () => {
+  await client.auth.signOut();
+  await checkSession();
+});
+
+async function loadSettings() {
+  const { data, error } = await client.from("rinko_settings").select("*").eq("id", "main").single();
+  if (error) return alert(error.message);
+
+  document.getElementById("smallBase").value = data.small_base;
+  document.getElementById("mediumBase").value = data.medium_base;
+  document.getElementById("largeBase").value = data.large_base;
+  document.getElementById("perMile").value = data.per_mile;
+  document.getElementById("expressFee").value = data.express_fee;
+  document.getElementById("heavyFee").value = data.heavy_fee;
+  document.getElementById("minimumPrice").value = data.minimum_price;
+  document.getElementById("seniorCode").value = data.senior_internal_code;
+}
+
+document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
+  const payload = {
+    small_base: moneyValue("smallBase"),
+    medium_base: moneyValue("mediumBase"),
+    large_base: moneyValue("largeBase"),
+    per_mile: moneyValue("perMile"),
+    express_fee: moneyValue("expressFee"),
+    heavy_fee: moneyValue("heavyFee"),
+    minimum_price: moneyValue("minimumPrice"),
+    senior_internal_code: document.getElementById("seniorCode").value.trim() || "SENIORHEAVY",
+    updated_at: new Date().toISOString()
+  };
+
+  const { error } = await client.from("rinko_settings").update(payload).eq("id", "main");
+  const msg = document.getElementById("settingsMsg");
+  if (error) {
+    msg.textContent = error.message;
+    msg.style.color = "#8a1f1f";
+  } else {
+    msg.textContent = "✅ Settings saved successfully";
+    msg.style.color = "#17602a";
+  }
+});
+
+document.getElementById("createCouponBtn").addEventListener("click", async () => {
+  const code = document.getElementById("couponCode").value.trim().toUpperCase();
+  const discount = Number(document.getElementById("couponDiscount").value || 0);
+  const expiresRaw = document.getElementById("couponExpires").value;
+  const limitRaw = document.getElementById("couponLimit").value;
+  const active = document.getElementById("couponActive").value === "true";
+  const msg = document.getElementById("couponMsg");
+
+  if (!code || discount <= 0) {
+    msg.textContent = "Coupon code and discount are required.";
+    msg.style.color = "#8a1f1f";
+    return;
+  }
+
+  const payload = {
+    code,
+    discount_percent: discount,
+    expires_at: expiresRaw ? new Date(expiresRaw).toISOString() : null,
+    usage_limit: limitRaw ? Number(limitRaw) : null,
+    active
+  };
+
+  const { error } = await client.from("rinko_coupons").insert(payload);
+  if (error) {
+    msg.textContent = error.message;
+    msg.style.color = "#8a1f1f";
+  } else {
+    msg.textContent = "✅ Coupon created";
+    msg.style.color = "#17602a";
+    document.getElementById("couponCode").value = "";
+    document.getElementById("couponDiscount").value = "";
+    document.getElementById("couponExpires").value = "";
+    document.getElementById("couponLimit").value = "";
+    await loadCoupons();
+  }
+});
+
+async function loadCoupons() {
+  const { data, error } = await client.from("rinko_coupons").select("*").order("created_at", { ascending: false });
+  if (error) return alert(error.message);
+
+  const body = document.getElementById("couponTable");
+  body.innerHTML = "";
+
+  data.forEach(c => {
+    const tr = document.createElement("tr");
+    const expires = c.expires_at ? new Date(c.expires_at).toLocaleString() : "No expiration";
+    const limit = c.usage_limit ? c.usage_limit : "∞";
+    tr.innerHTML = `
+      <td><strong>${c.code}</strong></td>
+      <td>${c.discount_percent}%</td>
+      <td>${expires}</td>
+      <td>${c.used_count} / ${limit}</td>
+      <td><span class="status ${c.active ? "active" : "off"}">${c.active ? "Active" : "Off"}</span></td>
+      <td>
+        <button class="btn secondary" onclick="toggleCoupon('${c.id}', ${!c.active})">${c.active ? "Disable" : "Enable"}</button>
+        <button class="btn secondary" onclick="resetCoupon('${c.id}')">Reset</button>
+        <button class="btn danger" onclick="deleteCoupon('${c.id}')">Delete</button>
+      </td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+async function toggleCoupon(id, active) {
+  const { error } = await client.from("rinko_coupons").update({ active }).eq("id", id);
+  if (error) return alert(error.message);
+  await loadCoupons();
+}
+
+async function resetCoupon(id) {
+  const { error } = await client.from("rinko_coupons").update({ used_count: 0 }).eq("id", id);
+  if (error) return alert(error.message);
+  await loadCoupons();
+}
+
+async function deleteCoupon(id) {
+  if (!confirm("Delete this coupon?")) return;
+  const { error } = await client.from("rinko_coupons").delete().eq("id", id);
+  if (error) return alert(error.message);
+  await loadCoupons();
+}
+
+checkSession();
+</script>
+
+<script>
+window.dataLayer = window.dataLayer || [];
+function rinkoTrack(eventName, payload = {}) {
+  dataLayer.push({
+    event: eventName,
+    page_path: window.location.pathname,
+    ...payload
+  });
+}
+rinkoTrack("rinko_page_view");
+
+document.querySelectorAll("[data-track]").forEach(el => {
+  el.addEventListener("click", () => {
+    rinkoTrack(el.getAttribute("data-track"));
+  });
+});
+
+const form = document.getElementById("rinko-quote-form");
+if (form) {
+  form.addEventListener("submit", () => {
+    rinkoTrack("quote_form_submit");
+  });
+}
+</script>
+
+</body>
+</html>

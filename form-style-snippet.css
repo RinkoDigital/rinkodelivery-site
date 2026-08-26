@@ -1,0 +1,28 @@
+.terms-box {
+  margin: 22px 0;
+  padding: 18px 20px;
+  border: 1px solid rgba(215, 180, 106, .34);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(215,180,106,.10), rgba(255,255,255,.045));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.terms-check {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 10px;
+  align-items: start;
+  color: #ddd6c8;
+  font-size: .92rem;
+  line-height: 1.55;
+}
+.terms-check input {
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  accent-color: #d7b46a;
+}
+.terms-check a {
+  color: #d7b46a;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

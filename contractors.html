@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Contractor Scheduling | Rinko Delivery</title>
+  <style>
+    :root{--navy:#04162c;--orange:#ff8a2a;--bg:#f4f7fb;--text:#17304d;--muted:#64758a;--border:#dbe5f0;--white:#fff;}
+    *{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,rgba(255,138,42,.22),transparent 32%),linear-gradient(180deg,#04162c 0%,#102f57 42%,#f4f7fb 42%);min-height:100vh;color:var(--text);padding:28px}
+    .wrap{width:min(860px,100%);margin:0 auto}.brand{display:flex;align-items:center;gap:12px;color:white;font-weight:900;margin-bottom:36px}.brand img{height:48px;width:auto}.card{background:white;border:1px solid var(--border);border-radius:28px;box-shadow:0 26px 70px rgba(0,0,0,.18);padding:clamp(24px,5vw,44px)}
+    .badge{display:inline-flex;background:#fff4ea;color:#9a4a08;border:1px solid #ffd3ad;border-radius:999px;padding:9px 13px;font-weight:900;font-size:.85rem;margin-bottom:16px}h1{margin:0 0 12px;color:var(--navy);font-size:clamp(2rem,5vw,3.5rem);letter-spacing:-1px}p{color:var(--muted);line-height:1.7}.gate{display:grid;gap:12px;margin-top:22px}input{width:100%;border:1px solid var(--border);border-radius:16px;padding:14px 16px;font-size:1rem}button,.btn{border:0;background:var(--orange);color:white;border-radius:999px;padding:14px 20px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-flex;justify-content:center}.secondary{background:var(--navy)}.panel{display:none;margin-top:24px;border:1px solid var(--border);border-radius:22px;padding:22px;background:#fbfdff}.error{display:none;color:#b42318;font-weight:800}.links{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.small{font-size:.9rem;color:#7b8797}.notice{background:#eef4fb;border:1px solid var(--border);border-radius:18px;padding:14px;margin-top:18px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand"><img src="site-logo-header.png" alt="Rinko Delivery logo" onerror="this.style.display='none'"> Rinko Delivery</div>
+    <section class="card">
+      <span class="badge">Private contractor access</span>
+      <h1>Contractor scheduling portal</h1>
+      <p>This page is separate from the customer experience. Customers submit delivery requests through the Order Portal; contractors use this private page only when Rinko Delivery shares access.</p>
+      <div class="notice"><strong>Access code:</strong> use the internal contractor code provided by Rinko Delivery.</div>
+      <div class="gate" id="gate">
+        <input id="code" type="password" placeholder="Enter contractor access code" autocomplete="off" />
+        <button type="button" onclick="unlockContractorPortal()">Open Contractor Scheduling</button>
+        <div class="error" id="error">Incorrect code. Please request the current contractor code from Rinko Delivery.</div>
+      </div>
+      <div class="panel" id="contractorPanel">
+        <h2 style="margin-top:0;color:var(--navy)">Contractor Calendly</h2>
+        <p>Use this link only for contractor availability, onboarding, dispatch calls, or internal coordination. Do not send this page to customers.</p>
+        <div class="links">
+          <a class="btn" href="https://calendly.com/contact-rinkodelivery/30min" target="_blank" rel="noopener">Open Contractor Calendly</a>
+          <a class="btn secondary" href="index.html">Back to Main Site</a>
+        </div>
+        <p class="small">For stronger protection later, move this page behind a real login or Netlify password protection. This static gate is for light privacy and cleaner UX only.</p>
+      </div>
+    </section>
+  </div>
+<script>
+  function unlockContractorPortal(){
+    const code = document.getElementById('code').value.trim().toUpperCase();
+    const ok = code === 'RINKO-CONTRACTOR';
+    document.getElementById('error').style.display = ok ? 'none' : 'block';
+    document.getElementById('contractorPanel').style.display = ok ? 'block' : 'none';
+    if(ok) document.getElementById('gate').style.display = 'none';
+  }
+</script>
+</body>
+</html>

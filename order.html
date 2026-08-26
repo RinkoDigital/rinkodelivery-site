@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id=GTM-QRBVNFPL'+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-QRBVNFPL');
+</script>
+<!-- End Google Tag Manager -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rinko Delivery | Order Portal</title>
+  <meta name="description" content="Request a local delivery with Rinko Delivery." />
+
+  <style>
+    :root {
+      --navy:#04162c;
+      --navy2:#102f57;
+      --orange:#ff8a2a;
+      --orange2:#ea7310;
+      --bg:#f4f7fb;
+      --text:#17304d;
+      --muted:#64758a;
+      --border:#dbe5f0;
+      --white:#fff;
+      --shadow:0 22px 60px rgba(15,39,71,.14);
+      --radius:24px;
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,138,42,.25), transparent 28%),
+        linear-gradient(180deg, #04162c 0%, #0d284c 38%, #f4f7fb 38%, #f4f7fb 100%);
+      color:var(--text);
+    }
+
+    a { color:inherit; text-decoration:none; }
+
+    .shell {
+      width:min(1180px, calc(100% - 28px));
+      margin:auto;
+      padding:22px 0 60px;
+    }
+
+    header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      color:white;
+      gap:16px;
+      min-height:72px;
+    }
+
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:900;
+      font-size:1.05rem;
+    }
+
+    .brand img {
+      height:44px;
+      width:auto;
+    }
+
+    .pill {
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:white;
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:.9rem;
+    }
+
+    .hero {
+      color:white;
+      padding:34px 0 30px;
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:24px;
+      align-items:end;
+    }
+
+    .hero h1 {
+      margin:0 0 14px;
+      font-size:clamp(2.3rem, 5vw, 4.3rem);
+      line-height:1;
+      letter-spacing:-1.5px;
+    }
+
+    .hero h1 span {
+      color:var(--orange);
+      display:block;
+    }
+
+    .hero p {
+      color:rgba(255,255,255,.84);
+      max-width:620px;
+      line-height:1.7;
+      margin:0;
+      font-size:1.08rem;
+    }
+
+    .status-card {
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.08);
+      border-radius:24px;
+      padding:22px;
+      backdrop-filter:blur(12px);
+      box-shadow:0 24px 60px rgba(0,0,0,.22);
+    }
+
+    .status-card strong {
+      color:white;
+      display:block;
+      margin-bottom:14px;
+    }
+
+    .status-grid {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+    }
+
+    .status {
+      text-align:center;
+      padding:12px 8px;
+      border-radius:16px;
+      font-size:.78rem;
+      font-weight:900;
+      color:rgba(255,255,255,.72);
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    .status.active {
+      color:white;
+      background:linear-gradient(135deg, var(--orange), var(--orange2));
+      border-color:transparent;
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns:minmax(0,1.5fr) minmax(340px,.9fr);
+      gap:24px;
+      align-items:start;
+    }
+
+    .panel {
+      background:white;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+    }
+
+    h2, h3 {
+      color:var(--navy);
+      margin:0 0 8px;
+    }
+
+    .sub {
+      color:var(--muted);
+      margin:0 0 22px;
+      line-height:1.6;
+    }
+
+    .progress {
+      height:10px;
+      background:#e9eff6;
+      border-radius:999px;
+      overflow:hidden;
+      margin-bottom:24px;
+    }
+
+    .progress span {
+      display:block;
+      height:100%;
+      width:42%;
+      background:linear-gradient(135deg, var(--orange), var(--orange2));
+      border-radius:999px;
+    }
+
+    form {
+      display:grid;
+      gap:18px;
+    }
+
+    .section-title {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:900;
+      color:var(--navy);
+      font-size:1.08rem;
+      margin-top:8px;
+    }
+
+    .section-title span {
+      width:34px;
+      height:34px;
+      display:grid;
+      place-items:center;
+      border-radius:12px;
+      background:rgba(255,138,42,.13);
+      color:var(--orange2);
+    }
+
+    .row {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:14px;
+    }
+
+    label {
+      display:grid;
+      gap:7px;
+      font-weight:800;
+      color:var(--navy);
+      font-size:.94rem;
+    }
+
+    input, select, textarea {
+      width:100%;
+      border:1px solid var(--border);
+      background:#f8fbff;
+      color:var(--text);
+      border-radius:16px;
+      padding:14px 15px;
+      font:inherit;
+      outline:none;
+    }
+
+    textarea {
+      min-height:112px;
+      resize:vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color:var(--orange);
+      box-shadow:0 0 0 4px rgba(255,138,42,.13);
+      background:white;
+    }
+
+    .choices {
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:12px;
+    }
+
+    .choice {
+      position:relative;
+      padding:16px;
+      border:1px solid var(--border);
+      border-radius:18px;
+      background:white;
+      cursor:pointer;
+      min-height:118px;
+      transition:.2s ease;
+    }
+
+    .choice:hover {
+      transform:translateY(-2px);
+      box-shadow:0 14px 34px rgba(15,39,71,.1);
+    }
+
+    .choice input {
+      position:absolute;
+      opacity:0;
+    }
+
+    .choice:has(input:checked) {
+      border-color:var(--orange);
+      box-shadow:inset 0 0 0 1px rgba(255,138,42,.25);
+      background:#fffaf5;
+    }
+
+    .choice .icon {
+      font-size:1.55rem;
+      display:block;
+      margin-bottom:8px;
+    }
+
+    .choice strong {
+      display:block;
+      color:var(--navy);
+      margin-bottom:4px;
+    }
+
+    .choice small {
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .btn {
+      border:none;
+      background:linear-gradient(135deg, var(--orange), var(--orange2));
+      color:white;
+      padding:16px 22px;
+      border-radius:16px;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 14px 30px rgba(255,138,42,.3);
+      font-size:1rem;
+    }
+
+    .summary {
+      position:sticky;
+      top:18px;
+    }
+
+    .summary-head {
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid var(--border);
+      padding-bottom:16px;
+      margin-bottom:16px;
+    }
+
+    .badge {
+      background:#eef5ff;
+      color:var(--navy);
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:900;
+      height:max-content;
+      font-size:.82rem;
+      white-space:nowrap;
+    }
+
+    .summary-list {
+      display:grid;
+      gap:14px;
+    }
+
+    .summary-row {
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid #eef2f6;
+      padding-bottom:12px;
+      color:var(--muted);
+    }
+
+    .summary-row strong {
+      color:var(--navy);
+      text-align:right;
+    }
+
+    .price {
+      margin-top:18px;
+      background:linear-gradient(135deg,#071a33,#123865);
+      border-radius:20px;
+      padding:20px;
+      color:white;
+    }
+
+    .price span {
+      color:rgba(255,255,255,.72);
+      font-weight:700;
+    }
+
+    .price strong {
+      display:block;
+      color:var(--orange);
+      font-size:2.25rem;
+      margin-top:4px;
+    }
+
+    .note {
+      color:rgba(255,255,255,.76);
+      margin:10px 0 0;
+      font-size:.9rem;
+      line-height:1.5;
+    }
+
+    .trust {
+      margin-top:16px;
+      display:grid;
+      gap:10px;
+    }
+
+    .trust div {
+      display:flex;
+      gap:10px;
+      background:#f8fbff;
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:13px;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+
+    .success {
+      display:none;
+      margin-top:14px;
+      padding:14px 16px;
+      background:#ecfff1;
+      color:#175d2a;
+      border:1px solid #c9efd2;
+      border-radius:16px;
+      font-weight:900;
+    }
+
+    @media (max-width:960px) {
+      .hero, .grid { grid-template-columns:1fr; }
+      .status-card { display:none; }
+      .summary { position:static; }
+      .row, .choices { grid-template-columns:1fr; }
+    }
+  </style>
+
+<style>
+.terms-check{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin:20px 0 16px;
+  padding:15px 16px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:#f8fbff;
+  color:var(--text);
+  font-size:.92rem;
+  line-height:1.55;
+}
+.terms-check input{
+  width:18px;
+  height:18px;
+  margin-top:3px;
+  accent-color:var(--orange);
+  flex:0 0 auto;
+}
+.terms-check a{
+  color:var(--orange2);
+  text-decoration:underline;
+  text-underline-offset:3px;
+  font-weight:800;
+}
+.terms-check .terms-title{
+  display:block;
+  font-weight:900;
+  color:var(--navy);
+  margin-bottom:3px;
+}
+.terms-error{
+  display:none;
+  margin:-6px 0 14px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#fff2f2;
+  border:1px solid #f0caca;
+  color:#9d2323;
+  font-size:.9rem;
+  font-weight:800;
+}
+.terms-error.show{display:block}
+</style>
+</head>
+
+<body>
+<!-- GTM (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-QRBVNFPL"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <div class="shell">
+    <header>
+<!-- Google Tag Manager -->
+<script>
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id=GTM-QRBVNFPL'+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-QRBVNFPL');
+</script>
+<!-- End Google Tag Manager -->
+
+      <a class="brand" href="index.html">
+        <img src="site-logo-header.png" alt="Rinko Delivery logo" onerror="this.style.display='none'">
+        <span>Rinko Delivery</span>
+      </a>
+      <a class="pill" href="index.html">Back to Website</a>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Delivery portal <span>built like an app.</span></h1>
+        <p>Request pickup, drop-off, item details, preferred timing, and receive a professional confirmation from Rinko Delivery before anything is scheduled.</p>
+      </div>
+
+      <div class="status-card">
+        <strong>Order workflow</strong>
+        <div class="status-grid">
+          <div class="status active">Request</div>
+          <div class="status">Review</div>
+          <div class="status">Pickup</div>
+          <div class="status">Delivered</div>
+        </div>
+      </div>
+    </section>
+
+    <main class="grid">
+      <section class="panel">
+        <h2>Request a Delivery</h2>
+        <p class="sub">Fill out the portal below. We will review availability, route fit, item details, and preferred timing before confirming the delivery.</p>
+
+        <div class="progress"><span></span></div>
+
+        <form id="orderForm" action="https://formspree.io/f/xpqkodow" method="POST">
+          <input type="hidden" name="request_source" value="Rinko Delivery Order Portal">
+          <input type="hidden" name="_subject" value="New Rinko Delivery Request">
+          <input type="hidden" name="order_id" id="hiddenOrderId">
+          <input type="hidden" name="order_status" id="hiddenOrderStatus" value="New request - needs review">
+          <input type="hidden" name="estimated_total" id="hiddenTotal">
+          <input type="hidden" name="pricing_breakdown" id="hiddenBreakdown">
+          <input type="hidden" name="discount_applied" id="hiddenDiscountApplied">
+          <input type="hidden" name="internal_senior_heavy_waiver" id="hiddenSeniorWaiver" value="No">
+
+          <div class="section-title"><span>1</span>Customer</div>
+
+          <div class="row">
+            <label>Full Name
+              <input type="text" name="name" placeholder="Your full name" required>
+            </label>
+            <label>Email
+              <input type="email" name="email" placeholder="you@email.com" required>
+            </label>
+          </div>
+
+          <div class="row">
+            <label>Phone
+              <input type="tel" name="phone" placeholder="(000) 000-0000">
+            </label>
+            <label>Company
+              <input type="text" name="company" placeholder="Optional">
+            </label>
+          </div>
+
+          <div class="section-title"><span>2</span>Route</div>
+
+          <div class="row">
+            <label>Pickup Address
+              <input type="text" name="pickup_address" id="pickup" placeholder="Pickup address" required>
+            </label>
+            <label>Drop-off Address
+              <input type="text" name="dropoff_address" id="dropoff" placeholder="Drop-off address" required>
+            </label>
+          </div>
+
+          <div class="row">
+            <label>Estimated Distance (miles)
+              <input type="number" name="distance_miles" id="distance" min="1" step="0.1" value="4.2" required>
+            </label>
+            <label>Preferred Date & Time
+              <input type="datetime-local" name="preferred_time">
+            </label>
+          </div>
+
+          <div class="section-title"><span>3</span>Item Size</div>
+
+          <div class="choices">
+            <label class="choice">
+              <input type="radio" name="item_size" value="Small" data-base="5" checked>
+              <span class="icon">👜</span>
+              <strong>Small</strong>
+              <small>Documents, bag, small package.</small>
+            </label>
+
+            <label class="choice">
+              <input type="radio" name="item_size" value="Medium" data-base="8">
+              <span class="icon">📦</span>
+              <strong>Medium</strong>
+              <small>Box or multiple small items.</small>
+            </label>
+
+            <label class="choice">
+              <input type="radio" name="item_size" value="Large" data-base="12">
+              <span class="icon">🚐</span>
+              <strong>Large</strong>
+              <small>Requires review. Cargo van coming soon.</small>
+            </label>
+          </div>
+
+          <div class="row">
+            <label>Package Type
+              <select name="package_type">
+                <option>Documents</option>
+                <option>Small Package</option>
+                <option>Retail Item</option>
+                <option>Food / Catering</option>
+                <option>Business Delivery</option>
+                <option>Other</option>
+              </select>
+            </label>
+
+            <label>Estimated Weight
+              <select name="estimated_weight">
+                <option>Under 5 lb</option>
+                <option>5–10 lb</option>
+                <option>10–20 lb</option>
+                <option>Over 20 lb - review needed</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="section-title"><span>4</span>Delivery Speed</div>
+
+          <div class="choices">
+            <label class="choice">
+              <input type="radio" name="delivery_speed" value="Standard Same-Day" data-fee="0" checked>
+              <span class="icon">🕒</span>
+              <strong>Standard</strong>
+              <small>Same-day delivery.</small>
+            </label>
+
+            <label class="choice">
+              <input type="radio" name="delivery_speed" value="Express Priority" data-fee="15">
+              <span class="icon">⚡</span>
+              <strong>Express</strong>
+              <small>Priority handling.</small>
+            </label>
+
+            <label class="choice">
+              <input type="radio" name="delivery_speed" value="Scheduled" data-fee="0">
+              <span class="icon">📅</span>
+              <strong>Scheduled</strong>
+              <small>Share your preferred time.</small>
+            </label>
+          </div>
+
+          <div class="section-title"><span>5</span>Promo & Details</div>
+
+          <div class="row">
+            <label>Promo Code
+              <input type="text" name="promo_code" id="promoCode" placeholder="Optional promo code">
+            </label>
+            <label>Payment Preference
+              <select name="payment_preference">
+                <option>Request invoice after review</option>
+                <option>Pay by card after confirmation</option>
+                <option>Business account / recurring service</option>
+              </select>
+            </label>
+          </div>
+
+          <label>Delivery Instructions
+            <textarea name="instructions" placeholder="Gate code, apartment number, item notes, fragile item, business instructions, etc."></textarea>
+          </label>
+
+
+          <label class="terms-check" for="orderTermsAgreement">
+            <input type="checkbox" id="orderTermsAgreement" name="terms_agreement" value="Accepted" required>
+            <span>
+              <span class="terms-title">Before submitting</span>
+              I agree to the <a href="terms.html" target="_blank" rel="noopener">delivery guidelines</a> and delivery verification policy.
+            </span>
+          </label>
+          <input type="hidden" name="terms_accepted" value="Yes - customer accepted delivery guidelines before submission">
+          <input type="hidden" name="delivery_verification_acknowledged" value="Yes - customer acknowledged delivery verification policy">
+          <div class="terms-error" id="orderTermsError">Please accept the delivery guidelines before submitting your request.</div>
+
+          <button class="btn" type="submit">Request Delivery</button>
+          <div class="success" id="successMsg">Request received. Redirecting...</div>
+        </form>
+      </section>
+
+      <aside class="panel summary">
+        <div class="summary-head">
+          <div>
+            <h3>Your request</h3>
+            <p class="sub" style="margin:0;">Live estimate summary</p>
+          </div>
+          <span class="badge">App Portal</span>
+        </div>
+
+        <div class="summary-list">
+          <div class="summary-row"><span>Service</span><strong>Sedan Delivery</strong></div>
+          <div class="summary-row"><span>Service and Handling</span><strong id="sumSize">Small · $5.00</strong></div>
+          <div class="summary-row"><span>Distance</span><strong id="sumDistance">4.2 mi</strong></div>
+          <div class="summary-row"><span>Speed</span><strong id="sumSpeed">Standard</strong></div>
+          <div class="summary-row"><span>Distance fee</span><strong id="sumDistanceFee">$8.82</strong></div>
+          <div class="summary-row"><span>Heavy item review</span><strong id="sumHeavyFee">$0.00</strong></div>
+          <div class="summary-row"><span>Discount</span><strong id="sumDiscount">$0.00</strong></div>
+        </div>
+
+        <div class="price">
+          <span>Estimated total</span>
+          <strong id="total">$12.10</strong>
+          <p class="note">Your request will be reviewed and confirmed shortly. Final pricing and scheduling are provided after review.</p>
+        </div>
+
+        <div class="trust">
+          <div>🛡️ <span><strong>Professional handling</strong>Local courier support with clear communication.</span></div>
+          <div>📍 <span><strong>Local service area</strong>Seattle, Bellevue, Kirkland, Bothell, Redmond & nearby areas.</span></div>
+          <div>⚡ <span><strong>Fast response</strong>Built for same-day and scheduled delivery requests.</span></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const form = document.getElementById("orderForm");
+    const distance = document.getElementById("distance");
+    const total = document.getElementById("total");
+    const hiddenTotal = document.getElementById("hiddenTotal");
+    const sumSize = document.getElementById("sumSize");
+    const sumDistance = document.getElementById("sumDistance");
+    const sumSpeed = document.getElementById("sumSpeed");
+    const sumDistanceFee = document.getElementById("sumDistanceFee");
+    const sumHeavyFee = document.getElementById("sumHeavyFee");
+    const sumDiscount = document.getElementById("sumDiscount");
+    const promoCode = document.getElementById("promoCode");
+    const hiddenBreakdown = document.getElementById("hiddenBreakdown");
+    const hiddenDiscountApplied = document.getElementById("hiddenDiscountApplied");
+    const hiddenSeniorWaiver = document.getElementById("hiddenSeniorWaiver");
+    const successMsg = document.getElementById("successMsg");
+
+    const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+
+    const ADMIN_DEFAULTS = { smallBase: 5, mediumBase: 8, largeBase: 12, sedanPerMile: 2.10, cargoPerMile: 2.85, heavyFee: 15, minimumPrice: 0, promo10: "RINKO10", promo15: "RINKO15", promo20: "RINKO20", internalWaiver: "SENIORHEAVY", careCode: "CARE20", coupons: [] };
+    const COUPON_USAGE_KEY = "RINKO_COUPON_USAGE";
+    function getCouponUsage() { try { return JSON.parse(localStorage.getItem(COUPON_USAGE_KEY)) || {}; } catch(e) { return {}; } }
+    function saveCouponUsage(usage) { localStorage.setItem(COUPON_USAGE_KEY, JSON.stringify(usage)); }
+    function normalizePromoCode(v) { return String(v || "").trim().toUpperCase().replace(/\s+/g, ""); }
+    function getAdminSettings() { try { return { ...ADMIN_DEFAULTS, ...(JSON.parse(localStorage.getItem("RINKO_ADMIN_SETTINGS")) || {}) }; } catch(e) { return ADMIN_DEFAULTS; } }
+    function applyAdminBasePrices() {
+      const a = getAdminSettings();
+      const small = document.querySelector("input[name=\"item_size\"][value=\"Small\"]");
+      const medium = document.querySelector("input[name=\"item_size\"][value=\"Medium\"]");
+      const large = document.querySelector("input[name=\"item_size\"][value=\"Large\"]");
+      if (small) small.dataset.base = a.smallBase;
+      if (medium) medium.dataset.base = a.mediumBase;
+      if (large) large.dataset.base = a.largeBase;
+    }
+    applyAdminBasePrices();
+
+    function selected(name) {
+      return document.querySelector(`input[name="${name}"]:checked`);
+    }
+
+    // ===== PRO PRICING ENGINE =====
+    function getPublicPromoCodes() {
+      const a = getAdminSettings();
+      return {
+        [String(a.promo10 || "RINKO10").toUpperCase()]: 0.10,
+        [String(a.promo15 || "RINKO15").toUpperCase()]: 0.15,
+        [String(a.promo20 || "RINKO20").toUpperCase()]: 0.20
+      };
+    }
+    function getPrivatePromoRules() {
+      const a = getAdminSettings();
+      return {
+        [String(a.internalWaiver || "SENIORHEAVY").toUpperCase()]: { discount: 0, waiveHeavyFee: true, label: "Internal heavy-item waiver" },
+        [String(a.careCode || "CARE20").toUpperCase()]: { discount: 0.20, waiveHeavyFee: true, label: "Internal care discount + heavy-item waiver" }
+      };
+    }
+    function getHeavyFee() {
+      const a = getAdminSettings();
+      const weight = document.querySelector('[name="estimated_weight"]').value;
+      return weight.includes("Over 20") ? Number(a.heavyFee || 0) : 0;
+    }
+
+    function getManagedCouponRule(code) {
+      const a = getAdminSettings();
+      const coupons = Array.isArray(a.coupons) ? a.coupons : [];
+      const usage = getCouponUsage();
+      const found = coupons.find(c => normalizePromoCode(c.code) === code);
+      if (!found) return null;
+      const percent = Number(found.percent || 0);
+      const used = Number(usage[code] || 0);
+      const maxUses = Number(found.maxUses || 0);
+      if (found.active === false) return { code, discount: 0, waiveHeavyFee: false, label: code + " inactive" };
+      if (found.expires) {
+        const expiresAt = new Date(found.expires + "T23:59:59");
+        if (new Date() > expiresAt) return { code, discount: 0, waiveHeavyFee: false, label: code + " expired" };
+      }
+      if (maxUses > 0 && used >= maxUses) return { code, discount: 0, waiveHeavyFee: false, label: code + " usage limit reached" };
+      return { code, discount: percent / 100, waiveHeavyFee: false, label: code + " managed coupon", managedCoupon: true };
+    }
+
+    function getPromoRule(rawCode) {
+      const code = normalizePromoCode(rawCode);
+      if (!code) return { code: "", discount: 0, waiveHeavyFee: false, label: "No discount" };
+      const managed = getManagedCouponRule(code);
+      if (managed) return managed;
+      const PUBLIC_PROMO_CODES = getPublicPromoCodes();
+      const PRIVATE_PROMO_RULES = getPrivatePromoRules();
+      if (PUBLIC_PROMO_CODES[code]) return { code, discount: PUBLIC_PROMO_CODES[code], waiveHeavyFee: false, label: code + " promo" };
+      if (PRIVATE_PROMO_RULES[code]) return { code, ...PRIVATE_PROMO_RULES[code] };
+      return { code, discount: 0, waiveHeavyFee: false, label: "Invalid or inactive promo" };
+    }
+
+    function registerCouponUse(promo) {
+      if (!promo || !promo.managedCoupon || !promo.code) return;
+      const usage = getCouponUsage();
+      usage[promo.code] = Number(usage[promo.code] || 0) + 1;
+      saveCouponUsage(usage);
+    }
+
+    function calculate() {
+      const miles = Number(distance.value || 0);
+      const size = selected("item_size");
+      const speed = selected("delivery_speed");
+      const promo = getPromoRule(promoCode.value);
+      window.__rinkoLastPromo = promo;
+
+      const base = Number(size.dataset.base || 10); // Small $10, Medium $15, Large $20
+      const adminSettings = getAdminSettings();
+      const perMile = Number(adminSettings.sedanPerMile || 2.10);
+      const distanceFee = +(miles * perMile).toFixed(2);
+      const speedFee = Number(speed.dataset.fee || 0);
+      const rawHeavyFee = getHeavyFee();
+      const heavyFee = promo.waiveHeavyFee ? 0 : rawHeavyFee;
+
+      const subtotal = +(base + distanceFee + speedFee + heavyFee).toFixed(2);
+      const discountAmount = +(subtotal * promo.discount).toFixed(2);
+      let finalPrice = +(subtotal - discountAmount).toFixed(2);
+
+      // No minimum price: total is base + distance + speed + heavy - discount.
+
+      sumSize.textContent = `${size.value} · ${currency.format(base)}`;
+      sumDistance.textContent = miles.toFixed(1) + " mi";
+      sumSpeed.textContent = speed.value.replace(" Same-Day", "");
+      sumDistanceFee.textContent = currency.format(distanceFee);
+      sumHeavyFee.textContent = rawHeavyFee > 0 && promo.waiveHeavyFee ? "Waived" : currency.format(heavyFee);
+      sumDiscount.textContent = discountAmount > 0 ? `-${currency.format(discountAmount)}` : currency.format(0);
+
+      total.textContent = currency.format(finalPrice);
+      hiddenTotal.value = currency.format(finalPrice);
+      hiddenDiscountApplied.value = promo.label;
+      hiddenSeniorWaiver.value = promo.waiveHeavyFee ? "Yes" : "No";
+      hiddenBreakdown.value = `Service & Handling: ${currency.format(base)} | Distance: ${miles.toFixed(1)} mi = ${currency.format(distanceFee)} | Speed: ${currency.format(speedFee)} | Heavy item review: ${rawHeavyFee > 0 && promo.waiveHeavyFee ? "Waived" : currency.format(heavyFee)} | Discount: ${currency.format(discountAmount)} | Total: ${currency.format(finalPrice)}`;
+    }
+
+    document.querySelectorAll("input, select, textarea").forEach(el => {
+      el.addEventListener("input", calculate);
+      el.addEventListener("change", calculate);
+    });
+
+    function buildOrderPayload(orderId) {
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+      payload.order_id = orderId;
+      payload.estimated_total = hiddenTotal.value;
+      payload.pricing_breakdown = hiddenBreakdown.value;
+      payload.submitted_at = new Date().toLocaleString();
+      return payload;
+    }
+
+    function saveOrderLocally(payload) {
+      try {
+        localStorage.setItem("RINKO_LAST_ORDER", JSON.stringify(payload));
+        const orders = JSON.parse(localStorage.getItem("RINKO_ORDERS") || "[]");
+        orders.unshift(payload);
+        localStorage.setItem("RINKO_ORDERS", JSON.stringify(orders.slice(0, 50)));
+      } catch(e) {}
+    }
+
+    form.addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const termsBox = document.getElementById("orderTermsAgreement");
+      const termsError = document.getElementById("orderTermsError");
+      if (!form.checkValidity() || (termsBox && !termsBox.checked)) {
+        if (termsError) termsError.classList.add("show");
+        if (termsBox && !termsBox.checked) {
+          termsBox.focus();
+          termsBox.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        if (form.reportValidity) form.reportValidity();
+        return;
+      }
+      if (termsError) termsError.classList.remove("show");
+
+      calculate();
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.textContent : "";
+      const orderId = "RD-" + Date.now().toString().slice(-8);
+      const hiddenOrderId = document.getElementById("hiddenOrderId");
+      const hiddenOrderStatus = document.getElementById("hiddenOrderStatus");
+      if (hiddenOrderId) hiddenOrderId.value = orderId;
+      if (hiddenOrderStatus) hiddenOrderStatus.value = "New request - needs review";
+
+      const payload = buildOrderPayload(orderId);
+      saveOrderLocally(payload);
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending request...";
+      }
+
+      try {
+        const data = new FormData(form);
+        const response = await fetch(form.action, {
+          method: "POST",
+          body: data,
+          headers: { "Accept": "application/json" }
+        });
+
+        if (response.ok) {
+          registerCouponUse(window.__rinkoLastPromo);
+          successMsg.style.display = "block";
+          if (window.dataLayer) {
+            window.dataLayer.push({ event: "order_request_submit", order_id: orderId, estimated_total: hiddenTotal.value });
+          }
+          setTimeout(() => window.location.href = "thank-you.html?order=" + encodeURIComponent(orderId), 700);
+        } else {
+          const errorText = await response.text().catch(() => "");
+          alert("The request was saved in this browser, but Formspree did not accept it. Check your Formspree endpoint or email verification. " + errorText.slice(0, 120));
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        }
+      } catch(err) {
+        alert("Connection issue. Your request was saved in this browser, but it was not sent by email. Please check internet/Formspree and try again.");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      }
+    });
+
+    calculate();
+  </script>
+
+<script>
+window.dataLayer = window.dataLayer || [];
+function rinkoTrack(eventName, payload = {}) {
+  dataLayer.push({
+    event: eventName,
+    page_path: window.location.pathname,
+    ...payload
+  });
+}
+rinkoTrack("rinko_page_view");
+
+document.querySelectorAll("[data-track]").forEach(el => {
+  el.addEventListener("click", () => {
+    rinkoTrack(el.getAttribute("data-track"));
+  });
+});
+
+const trackingForm = document.getElementById("orderForm");
+if (trackingForm) {
+  trackingForm.addEventListener("submit", () => {
+    rinkoTrack("quote_form_submit");
+  });
+}
+</script>
+
+
+<script>
+  try {
+    const k = 'RINKO_ADMIN_SETTINGS';
+    const s = JSON.parse(localStorage.getItem(k) || '{}');
+    if (s && Number(s.minimumPrice || 0) !== 0) { s.minimumPrice = 0; localStorage.setItem(k, JSON.stringify(s)); }
+  } catch(e) {}
+</script>
+</body>
+</html>
