@@ -15,7 +15,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rinko Delivery | Fast Local Courier & Same-Day Delivery</title>
-  <meta name="description" content="Rinko Delivery provides fast, reliable local courier and same-day delivery services across Seattle, Bellevue, Kirkland, Bothell, Redmond, Woodinville, and nearby areas." />
+  <meta name="description" content="Get an instant, itemized delivery price before you request anything. Rinko Delivery offers same-day local courier service across Seattle, Bellevue, Kirkland, Bothell, Redmond, Woodinville, and nearby areas." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
 /* ===== CTA PROFISSIONAL ===== */
 
@@ -63,7 +66,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
+
+.cta-icon svg { width: 22px; height: 22px; }
 
 .cta-item strong {
   color: #ffffff;
@@ -88,6 +94,7 @@
       --shadow: 0 18px 45px rgba(15, 39, 71, 0.12);
       --radius: 20px;
       --max: 1320px;
+      --font: 'Inter', Arial, Helvetica, sans-serif;
     }
 
     * { box-sizing: border-box; }
@@ -95,11 +102,14 @@
 
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: var(--font);
       color: var(--text);
       background: #ffffff;
-      line-height: 1.6;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
     }
+
+    h1, h2, h3, h4 { font-family: var(--font); letter-spacing: -0.01em; }
 
     .container {
       width: min(var(--max), calc(100% - 32px));
@@ -266,6 +276,31 @@
       margin-bottom: 26px;
     }
 
+    .hero-trust {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 22px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .hero-trust li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.82);
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+
+    .hero-trust svg {
+      width: 17px;
+      height: 17px;
+      color: var(--orange);
+      flex-shrink: 0;
+    }
+
     .hero-stats {
       display: none;
     }
@@ -388,6 +423,24 @@
       font-size: 1.4rem;
       margin-bottom: 16px;
       font-weight: 800;
+    }
+
+    .icon svg { width: 26px; height: 26px; }
+
+    .areas-grid .area-card {
+      text-align: center;
+      padding: 22px 16px;
+    }
+
+    .areas-grid .area-icon {
+      margin: 0 auto 14px;
+      width: 46px;
+      height: 46px;
+    }
+
+    .areas-grid .area-card h3 {
+      margin: 0;
+      font-size: 1.05rem;
     }
 
     .service-card h3,
@@ -1369,7 +1422,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <header>
     <div class="container nav">
       <a href="#home" class="logo" aria-label="Rinko Delivery home">
-        <img src="site-logo-header.png" alt="Rinko Delivery logo" />
+        <img src="site-logo-header.png" alt="Rinko Delivery logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'" />
+        <span class="logo-text" style="display:none;color:#fff;font-weight:900;font-size:1.1rem;">Rinko Delivery</span>
       </a>
 
       <button class="menu-toggle" aria-label="Open menu" id="menuToggle">☰</button>
@@ -1381,6 +1435,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <li><a href="#areas">Areas</a></li>
           <li><a href="#why-us">Why Us</a></li>
           <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
           <li><a href="order.html">Order Portal</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
@@ -1394,14 +1449,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <section class="hero" id="home">
       <div class="container hero-grid">
         <div class="reveal visible">
-          <h1>Fast Delivery,<span class="accent">Every Time.</span></h1>
+          <h1>Local delivery,<span class="accent">priced instantly.</span></h1>
           <p>
-            Same-day delivery you can count on across Seattle, Bellevue, Kirkland, Bothell, Redmond, Woodinville, and nearby areas.
+            See your exact price before you request anything — no calls, no waiting on a callback. Same-day courier service across Seattle, Bellevue, Kirkland, Bothell, Redmond, Woodinville, and nearby areas.
           </p>
           <div class="hero-actions">
-            <a class="btn" href="order.html">Request Delivery</a>
-            <a class="btn-outline" href="#pricing">Estimate Price</a>
+            <a class="btn" href="#pricing">Get Instant Price</a>
+            <a class="btn-outline" href="order.html">Request Delivery</a>
           </div>
+          <ul class="hero-trust">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Same-day service</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.24L4 3a1 1 0 00-1 1l.24 5.59a2 2 0 00.58 1.41l9.58 9.58a2 2 0 002.83 0l4.36-4.36a2 2 0 000-2.81z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>No hidden fees</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z"/></svg>6 cities covered</li>
+          </ul>
         </div>
       </div>
     </section>
@@ -1410,27 +1470,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="container about-grid">
         <div class="section-head reveal">
           <div class="eyebrow">About Rinko Delivery</div>
-          <h2>Local delivery support with speed, care, and professionalism.</h2>
+          <h2>You see the price first. Then you decide.</h2>
           <p>
-            Rinko Delivery was built to serve customers who need a dependable local courier partner.
-            Whether you need a one-time urgent drop-off or recurring delivery support for your business,
-            our goal is simple: make delivery easier, faster, and more reliable.
+            Most local couriers make you call or fill out a form before you know what anything costs. Rinko Delivery
+            flips that: get an instant, itemized price from the calculator below, then submit your request only if it
+            works for you. Every request is reviewed by a real person before pickup is confirmed — no surprise fees
+            added afterward.
           </p>
           <div class="badge-row">
-            <span class="badge">Fast Response</span>
-            <span class="badge">Customer-Focused</span>
-            <span class="badge">Professional Service</span>
+            <span class="badge">Instant Pricing</span>
+            <span class="badge">Reviewed Before Pickup</span>
+            <span class="badge">Direct Email Contact</span>
           </div>
         </div>
         <div class="panel reveal">
           <h3>Who we help</h3>
           <p>
-            We support local residents, online sellers, offices, small businesses, and service providers who need deliveries handled with consistency and care.
+            Built for the everyday local delivery gap — jobs too small for a national courier's minimum, too urgent to wait on standard shipping.
           </p>
           <div class="contact-list">
-            <div class="contact-item"><strong>Homes & Individuals</strong><span>Quick local drop-offs and flexible service requests.</span></div>
-            <div class="contact-item"><strong>Small Businesses</strong><span>Reliable support for recurring routes and customer deliveries.</span></div>
-            <div class="contact-item"><strong>Busy Teams</strong><span>Extra help when your operations need fast local movement.</span></div>
+            <div class="contact-item"><strong>Homes & Individuals</strong><span>A quick drop-off or pickup without renting a van or a whole afternoon.</span></div>
+            <div class="contact-item"><strong>Small Businesses</strong><span>An overflow driver for customer deliveries on your busiest days.</span></div>
+            <div class="contact-item"><strong>Busy Teams</strong><span>Document runs, supply pickups, and errands your staff shouldn't have to do.</span></div>
           </div>
         </div>
       </div>
@@ -1440,41 +1501,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="container">
         <div class="section-head reveal">
           <div class="eyebrow">Our Services</div>
-          <h2>Delivery solutions designed for local speed and convenience.</h2>
+          <h2>Pick the speed. We handle the route.</h2>
           <p>
-            Choose the service that fits your day-to-day needs. We keep things simple, responsive, and dependable.
+            Every service below runs through the same instant quote calculator, so you always know the cost before you commit.
           </p>
         </div>
         <div class="grid-3">
           <div class="service-card reveal">
-            <div class="icon">↗</div>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg></div>
             <h3>Same-Day Delivery</h3>
-            <p>Fast local delivery for time-sensitive packages that need to move quickly within the area.</p>
+            <p>Sedan pickup and drop-off within the same day for time-sensitive packages.</p>
           </div>
           <div class="service-card reveal">
-            <div class="icon">⌁</div>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.2 16.8L15.8 7.2"/></svg></div>
             <h3>Local Courier Service</h3>
-            <p>Professional courier support for day-to-day deliveries between homes, offices, and local clients.</p>
+            <p>Point-to-point runs between homes, offices, and local clients — one delivery at a time.</p>
           </div>
           <div class="service-card reveal">
-            <div class="icon">⏰</div>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></div>
             <h3>Scheduled Deliveries</h3>
-            <p>Recurring delivery options for businesses that need consistent service throughout the week.</p>
+            <p>Set a preferred date and time in the order portal for planned, non-urgent runs.</p>
           </div>
           <div class="service-card reveal">
-            <div class="icon">▣</div>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></div>
             <h3>Package Drop-Off</h3>
-            <p>Convenient transport for packages, documents, and order support when you need an extra hand.</p>
+            <p>Documents, small parcels, and order hand-offs when you need an extra set of hands.</p>
           </div>
           <div class="service-card reveal">
-            <div class="icon">⚙</div>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M9 9V6a3 3 0 016 0v3M3 13h18"/></svg></div>
             <h3>Business Delivery Support</h3>
-            <p>Flexible local help for stores, offices, and service teams that need reliable delivery operations.</p>
+            <p>An extra driver for stores and offices that need reliable, on-demand delivery capacity.</p>
           </div>
           <div class="service-card reveal">
-            <div class="icon">☑</div>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
             <h3>Custom Requests</h3>
-            <p>Need something more specific? We can discuss custom local delivery solutions for your schedule and goals.</p>
+            <p>Something more specific? Send the details through the contact form below and we'll review it directly.</p>
           </div>
         </div>
       </div>
@@ -1484,20 +1545,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="container">
         <div class="section-head reveal">
           <div class="eyebrow">Coverage Areas</div>
-          <h2>Proudly serving major local communities and nearby cities.</h2>
+          <h2>Eastside and Seattle, covered directly.</h2>
           <p>
-            Rinko Delivery focuses on dependable local routes across key cities in the region.
+            Type any pickup and drop-off into the calculator below and it will price the route automatically — these are the core areas we serve.
           </p>
         </div>
         <div class="areas-grid">
-          <div class="area-card reveal"><h3>Seattle</h3><p>Fast local support for residential and business deliveries.</p></div>
-          <div class="area-card reveal"><h3>Bellevue</h3><p>Reliable courier service for busy neighborhoods and commercial areas.</p></div>
-          <div class="area-card reveal"><h3>Kirkland</h3><p>Flexible same-day transport and recurring delivery options.</p></div>
-          <div class="area-card reveal"><h3>Bothell</h3><p>Convenient service for local customers and growing businesses.</p></div>
-          <div class="area-card reveal"><h3>Redmond</h3><p>Professional support for delivery requests large and small.</p></div>
-          <div class="area-card reveal"><h3>Woodinville</h3><p>Local route availability with dependable communication.</p></div>
-          <div class="area-card reveal"><h3>Nearby Areas</h3><p>Additional locations may be available depending on the request.</p></div>
-          <div class="area-card reveal"><h3>Custom Routes</h3><p>Contact us to discuss your delivery needs and service location.</p></div>
+          <div class="area-card reveal"><div class="icon area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z"/></svg></div><h3>Seattle</h3></div>
+          <div class="area-card reveal"><div class="icon area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z"/></svg></div><h3>Bellevue</h3></div>
+          <div class="area-card reveal"><div class="icon area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z"/></svg></div><h3>Kirkland</h3></div>
+          <div class="area-card reveal"><div class="icon area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z"/></svg></div><h3>Bothell</h3></div>
+          <div class="area-card reveal"><div class="icon area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z"/></svg></div><h3>Redmond</h3></div>
+          <div class="area-card reveal"><div class="icon area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z"/></svg></div><h3>Woodinville</h3></div>
+          <div class="area-card reveal"><div class="icon area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.83V8.062a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg></div><h3>Nearby Areas</h3></div>
+          <div class="area-card reveal"><div class="icon area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><h3>Custom Routes</h3></div>
         </div>
       </div>
     </section>
@@ -1506,26 +1567,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="container">
         <div class="section-head reveal">
           <div class="eyebrow">Why Choose Us</div>
-          <h2>Built around trust, speed, and clear communication.</h2>
+          <h2>No call needed to find out the price.</h2>
           <p>
-            We know delivery is about more than moving a package. It is about reliability, professionalism, and peace of mind.
+            Delivery pricing is usually opaque until someone calls you back. Rinko Delivery shows the math up front and confirms in writing before anything is scheduled.
           </p>
         </div>
         <div class="grid-3">
           <div class="value-card reveal">
-            <div class="icon">⚡</div>
-            <h3>Fast Turnaround</h3>
-            <p>Quick response times and local service designed to keep things moving without delays.</p>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg></div>
+            <h3>Instant, Itemized Pricing</h3>
+            <p>Base rate, distance, speed, and extras are broken out separately — no flat "call for quote."</p>
           </div>
           <div class="value-card reveal">
-            <div class="icon">🛡</div>
-            <h3>Dependable Service</h3>
-            <p>We focus on consistency, careful handling, and reliable support from pickup to drop-off.</p>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></div>
+            <h3>Reviewed Before Pickup</h3>
+            <p>Every request is checked for route, timing, and item fit before we confirm — not automatically approved.</p>
           </div>
           <div class="value-card reveal">
-            <div class="icon">💬</div>
-            <h3>Customer-First Approach</h3>
-            <p>Friendly communication, flexible service, and attention to the needs of each client.</p>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+            <h3>Direct Communication</h3>
+            <p>Questions go straight to a real inbox — no phone tree, no ticket queue.</p>
           </div>
         </div>
       </div>
@@ -1535,9 +1596,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="container cta-grid">
         <div class="reveal">
           <div class="eyebrow" style="background: rgba(255,255,255,0.12); color: #fff;">Need local delivery support?</div>
-          <h2>Let Rinko Delivery help you move faster.</h2>
+          <h2>Get your price before you commit to anything.</h2>
           <p>
-            Whether you need a quick same-day drop-off or recurring business delivery support, we are ready to discuss the right solution for you.
+            Run the calculator, see the breakdown, and only submit a request if the number works for you.
           </p>
           <div class="hero-actions">
             <a class="btn" href="#pricing">Estimate Price</a>
@@ -1549,7 +1610,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <div class="cta-list">
     <div class="cta-item">
-      <span class="cta-icon">⚡</span>
+      <span class="cta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>
       <div>
         <strong>Urgent same-day deliveries</strong>
         <p>Fast pickup and quick drop-off when time matters.</p>
@@ -1557,7 +1618,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <div class="cta-item">
-      <span class="cta-icon">🏢</span>
+      <span class="cta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M9 9V6a3 3 0 016 0v3M3 13h18"/></svg></span>
       <div>
         <strong>Small business support</strong>
         <p>Recurring deliveries for your daily operations.</p>
@@ -1565,7 +1626,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <div class="cta-item">
-      <span class="cta-icon">📦</span>
+      <span class="cta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></span>
       <div>
         <strong>Packages & documents</strong>
         <p>Safe and reliable local transport.</p>
@@ -1573,10 +1634,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <div class="cta-item">
-      <span class="cta-icon">🛡️</span>
+      <span class="cta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></span>
       <div>
         <strong>Professional service</strong>
-        <p>Dependable and customer-focused delivery.</p>
+        <p>Reviewed and confirmed before every pickup.</p>
       </div>
     </div>
   </div>
@@ -1601,7 +1662,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h3>Get a Delivery Quote</h3>
             <p>Fill in the details below to get an instant estimate.</p>
           </div>
-          <div class="quote-pill">⚡ Fast. Reliable. Delivered.</div>
+          <div class="quote-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--orange-dark)"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg> No account or call needed</div>
         </div>
 
         <div class="quote-block">
@@ -1866,15 +1927,42 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
+    <section id="how-it-works">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="eyebrow">How It Works</div>
+          <h2>Three steps, no phone tag.</h2>
+          <p>There's no public booking calendar on purpose — every request gets a human check before it's confirmed. Here's exactly what happens after you submit.</p>
+        </div>
+        <div class="grid-3">
+          <div class="value-card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+            <h3>1. Get your price</h3>
+            <p>Use the calculator below or the order portal — the estimate is instant and itemized.</p>
+          </div>
+          <div class="value-card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+            <h3>2. We review it</h3>
+            <p>Route, item size, and timing are checked against real availability — not auto-approved.</p>
+          </div>
+          <div class="value-card reveal">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg></div>
+            <h3>3. We confirm by email or phone</h3>
+            <p>You get a final confirmation before any pickup is scheduled — no surprise changes.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="contact"
  style="background: var(--bg);">
       <div class="container contact-grid">
         <div class="reveal">
           <div class="section-head" style="margin-bottom: 18px;">
             <div class="eyebrow">Contact Us</div>
-            <h2>Request a quote or delivery availability review.</h2>
+            <h2>Have a question before you request?</h2>
             <p>
-              Use the quick estimator above for a fast sedan-friendly price idea, then submit a request for review. We confirm availability before scheduling any pickup.
+              For a straightforward delivery, the calculator above and the order portal are faster than a form. Use this instead for custom requests, recurring business routes, or anything the calculator doesn't quite cover.
             </p>
           </div>
           <div class="contact-list">
@@ -1933,7 +2021,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div>
           <div class="footer-title">Rinko Delivery</div>
           <p>
-            Professional local courier and same-day delivery service focused on speed, care, and customer satisfaction.
+            Local courier and same-day delivery with instant, itemized pricing — Seattle, Bellevue, Kirkland, Bothell, Redmond, Woodinville, and nearby areas.
           </p>
         </div>
         <div>
@@ -2031,7 +2119,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         'event_label': 'contact_form'
       });
 
-      window.location.href = "/thank-you.html";
+      window.location.href = "/quote-thank-you.html";
     } catch (error) {
       alert("We could not send your request right now. Please try again or email rinkodanna@gmail.com.");
       if (submitButton) {
