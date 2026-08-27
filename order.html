@@ -14,7 +14,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rinko Delivery | Order Portal</title>
-  <meta name="description" content="Request a local delivery with Rinko Delivery." />
+  <meta name="description" content="Request a local delivery with Rinko Delivery. Instant, itemized pricing." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -29,13 +32,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       --white:#fff;
       --shadow:0 22px 60px rgba(15,39,71,.14);
       --radius:24px;
+      --font:'Inter', Arial, Helvetica, sans-serif;
     }
 
     * { box-sizing:border-box; }
 
     body {
       margin:0;
-      font-family:Arial, Helvetica, sans-serif;
+      font-family:var(--font);
+      -webkit-font-smoothing:antialiased;
       background:
         radial-gradient(circle at top left, rgba(255,138,42,.25), transparent 28%),
         linear-gradient(180deg, #04162c 0%, #0d284c 38%, #f4f7fb 38%, #f4f7fb 100%);
@@ -496,8 +501,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <section class="hero">
       <div>
-        <h1>Delivery portal <span>built like an app.</span></h1>
-        <p>Request pickup, drop-off, item details, preferred timing, and receive a professional confirmation from Rinko Delivery before anything is scheduled.</p>
+        <h1>Your price, <span>updating live.</span></h1>
+        <p>Fill in the details on the left and watch the total on the right change instantly. Nothing is charged or scheduled until we review and confirm your request.</p>
       </div>
 
       <div class="status-card">
@@ -703,9 +708,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </div>
 
         <div class="trust">
-          <div>🛡️ <span><strong>Professional handling</strong>Local courier support with clear communication.</span></div>
+          <div>🔎 <span><strong>Reviewed, not auto-approved</strong>A person checks route and timing before confirming.</span></div>
           <div>📍 <span><strong>Local service area</strong>Seattle, Bellevue, Kirkland, Bothell, Redmond & nearby areas.</span></div>
-          <div>⚡ <span><strong>Fast response</strong>Built for same-day and scheduled delivery requests.</span></div>
+          <div>✉️ <span><strong>Confirmed by email or phone</strong>You'll hear back before anything is scheduled.</span></div>
         </div>
       </aside>
     </main>
