@@ -19,6 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
 /* ===== CTA PROFISSIONAL ===== */
 
@@ -1762,11 +1763,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="quote-field">
               <label for="quoteDistance">One-way distance</label>
               <input id="quoteDistance" type="number" min="1" step="0.1" value="4.2" placeholder="Miles">
-              <div class="quote-note" id="quoteDistanceNote">Distance can be calculated automatically with Google Maps after both locations are selected. You can still type miles manually if needed.</div>
+              <div class="quote-note" id="quoteDistanceNote">Distance can be calculated automatically after both locations are entered. You can still type miles manually if needed.</div>
             </div>
 
             <div class="quote-map-toolbar">
-              <button type="button" class="btn quote-map-btn" id="quoteRouteBtn">Calculate with Google Maps</button>
+              <button type="button" class="btn quote-map-btn" id="quoteRouteBtn">Calculate route</button>
               <span class="quote-map-status" id="quoteMapStatus">Waiting for addresses…</span>
             </div>
 
@@ -1776,11 +1777,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
 
             <div class="quote-mini-map" id="quoteMiniMap" aria-label="Route preview map">
-              <div class="quote-map-placeholder" id="quoteMapPlaceholder"><div><strong>Google route preview</strong>When your Google Maps key is active, the route preview appears here automatically.</div></div>
+              <div class="quote-map-placeholder" id="quoteMapPlaceholder"><div><strong>Route preview</strong>The route will appear here after both addresses are calculated.</div></div>
             </div>
 
             <div class="quote-api-help">
-              Add your Google Maps API key near the bottom of this file to enable autocomplete and route distance calculation.
+              Route calculation uses Geoapify and OpenStreetMap. Addresses are processed only after you select Calculate route.
             </div>
           </div>
 
@@ -2074,6 +2075,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   const form = document.getElementById("contact-form");
 
@@ -2282,47 +2284,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       updateQuote();
     }
 
-    window.initRinkoQuoteMap = function initRinkoQuoteMap() {
+    function initRinkoQuoteMap() {
       const mapEl = document.getElementById('quoteMiniMap');
-      if (!window.google || !mapEl) return;
+      if (!window.L || !mapEl) {
+        mapStatus.textContent = 'The route map is temporarily unavailable. You can still type the miles manually.';
+        return;
+      }
 
-      const map = new google.maps.Map(mapEl, {
-        center: { lat: 47.6101, lng: -122.2015 },
-        zoom: 10,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false
-      });
+      const map = L.map(mapEl, { scrollWheelZoom: false }).setView([47.6101, -122.2015], 10);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+      }).addTo(map);
 
       if (mapPlaceholder) mapPlaceholder.style.display = 'none';
-      const directionsService = new google.maps.DirectionsService();
-      const directionsRenderer = new google.maps.DirectionsRenderer({
-        map,
-        suppressMarkers: false,
-        polylineOptions: {
-          strokeColor: '#ff8a2a',
-          strokeWeight: 5
-        }
-      });
+      let routeLayer = null;
+      let markerLayer = null;
 
-      const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, {
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['geocode']
-      });
-
-      const dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, {
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['geocode']
-      });
-
-      [pickupAutocomplete, dropoffAutocomplete].forEach(instance => {
-        instance.addListener('place_changed', () => {
-          mapStatus.textContent = 'Address selected. Calculating route…';
-          if (pickupInput.value.trim() && dropoffInput.value.trim()) routeBtn.click();
-        });
-      });
-
-      routeBtn.addEventListener('click', () => {
+      routeBtn.addEventListener('click', async () => {
         const origin = pickupInput.value.trim();
         const destination = dropoffInput.value.trim();
 
@@ -2332,46 +2311,48 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         mapStatus.textContent = 'Calculating route…';
+        routeBtn.disabled = true;
 
-        directionsService.route({
-          origin,
-          destination,
-          travelMode: google.maps.TravelMode.DRIVING,
-          unitSystem: google.maps.UnitSystem.IMPERIAL
-        }, (result, status) => {
-          if (status !== 'OK' || !result || !result.routes || !result.routes[0] || !result.routes[0].legs || !result.routes[0].legs[0]) {
-            mapStatus.textContent = 'Google Maps could not calculate this route. You can still type the miles manually.';
-            return;
-          }
+        try {
+          const response = await fetch('/api/route', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ origin, destination })
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok || !data.ok || !data.geometry) throw new Error(data.error || 'Route unavailable');
 
-          directionsRenderer.setDirections(result);
+          if (routeLayer) map.removeLayer(routeLayer);
+          if (markerLayer) map.removeLayer(markerLayer);
 
-          const leg = result.routes[0].legs[0];
-          const meters = leg.distance && leg.distance.value ? leg.distance.value : 0;
-          const miles = meters / 1609.344;
-          const duration = leg.duration && leg.duration.text ? leg.duration.text : '—';
+          routeLayer = L.geoJSON(data.geometry, {
+            style: { color: '#ff8a2a', weight: 5, opacity: 0.9 }
+          }).addTo(map);
 
-          setRouteResult(miles, duration, 'Distance updated automatically from Google Maps.');
-        });
+          markerLayer = L.layerGroup([
+            L.marker([data.origin.lat, data.origin.lon]).bindPopup('Pickup'),
+            L.marker([data.destination.lat, data.destination.lon]).bindPopup('Drop-off')
+          ]).addTo(map);
+
+          map.fitBounds(routeLayer.getBounds(), { padding: [28, 28] });
+          const miles = Number(data.distanceMeters || 0) / 1609.344;
+          const minutes = Math.max(1, Math.round(Number(data.durationSeconds || 0) / 60));
+          setRouteResult(miles, `${minutes} min`, 'Distance updated automatically from the route service.');
+        } catch (error) {
+          mapStatus.textContent = 'The route could not be calculated. You can still type the miles manually.';
+        } finally {
+          routeBtn.disabled = false;
+        }
       });
 
-      mapStatus.textContent = 'Google Maps is ready. After you pick both addresses, the route can be previewed below.';
-    };
+      mapStatus.textContent = 'Route calculator is ready. Enter both addresses and select Calculate route.';
+    }
 
     updateQuote();
+    initRinkoQuoteMap();
   })();
 
 </script>
-
-<script>
-  // Replace YOUR_GOOGLE_MAPS_API_KEY with your real key below.
-  // Search in this file for: YOUR_GOOGLE_MAPS_API_KEY
-  // Enable Maps JavaScript API and Places API in Google Cloud, and make sure billing is enabled.
-</script>
-<script async
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKZGTBaGOiB_we1YQrwvG7Rovd2hg-yfY&loading=async&libraries=places&callback=initRinkoQuoteMap">
-</script>
-
 
 <script>
 window.dataLayer = window.dataLayer || [];

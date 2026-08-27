@@ -16,3 +16,9 @@
   to = "/.netlify/functions/order"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/api/route"
+  to = "/.netlify/functions/route"
+  status = 200
+  force = true
