@@ -2,6 +2,8 @@
 
 Static Rinko Delivery website prepared for GitHub and Netlify. Contact and order forms use Netlify Functions to communicate securely with Brevo; the Brevo API key is never exposed to the browser.
 
+Each successful submission creates or updates the submitting email as a Brevo contact, sends the internal transactional notification, and records the matching custom event. Contacts are not automatically added to a marketing list.
+
 ## Production structure
 
 - `index.html` — main website and quote form.

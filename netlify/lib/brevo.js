@@ -161,20 +161,28 @@ async function sendEmail({ toEmail, toName, subject, htmlContent, textContent, r
   return brevoRequest("/smtp/email", body);
 }
 
-async function trackEvent(eventName, email, eventProperties) {
-  if (String(process.env.BREVO_TRACK_EVENTS || "true").toLowerCase() === "false") return;
-  if (!emailIsValid(email)) return;
+async function upsertContact(email) {
+  const normalizedEmail = clean(email, 320);
+  if (!emailIsValid(normalizedEmail)) throw new Error("Contact email is invalid");
 
-  try {
-    await brevoRequest("/events", {
-      event_name: clean(eventName, 255).replace(/[^a-zA-Z0-9_-]/g, "_"),
-      event_date: new Date().toISOString(),
-      identifiers: { email_id: clean(email, 320) },
-      event_properties: eventProperties || {}
-    });
-  } catch (error) {
-    console.error("Brevo event tracking failed:", error.message);
-  }
+  return brevoRequest("/contacts", {
+    email: normalizedEmail,
+    updateEnabled: true
+  });
+}
+
+async function trackEvent(eventName, email, eventProperties) {
+  if (String(process.env.BREVO_TRACK_EVENTS || "true").toLowerCase() === "false") return false;
+  if (!emailIsValid(email)) throw new Error("Event contact email is invalid");
+
+  await brevoRequest("/events", {
+    event_name: clean(eventName, 255).replace(/[^a-zA-Z0-9_-]/g, "_"),
+    event_date: new Date().toISOString(),
+    identifiers: { email_id: clean(email, 320) },
+    event_properties: eventProperties || {}
+  });
+
+  return true;
 }
 
 function requestIsAllowed(event) {
@@ -193,5 +201,6 @@ module.exports = {
   requestIsAllowed,
   sendEmail,
   textRows,
-  trackEvent
+  trackEvent,
+  upsertContact
 };

@@ -9,7 +9,8 @@ const {
   requestIsAllowed,
   sendEmail,
   textRows,
-  trackEvent
+  trackEvent,
+  upsertContact
 } = require("../lib/brevo");
 
 const notifyEmail = () => clean(process.env.BREVO_NOTIFY_EMAIL || "rinkodanna@gmail.com", 320);
@@ -80,6 +81,8 @@ exports.handler = async (event) => {
   const text = `New Rinko Delivery order request\n\n${textRows(fields)}`;
 
   try {
+    await upsertContact(email);
+
     await sendEmail({
       toEmail: notifyEmail(),
       toName: "Rinko Delivery",

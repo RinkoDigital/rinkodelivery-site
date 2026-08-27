@@ -2,6 +2,8 @@
 
 Rinko Delivery now sends website contact requests and delivery order requests through the Netlify Functions in `netlify/functions/`. The browser never receives the Brevo API key.
 
+Before recording each custom event, the functions create or update the submitting email as a Brevo contact without adding it to a marketing list. This ensures the event is associated with a contact for automation triggers.
+
 ## Netlify environment variables
 
 Add these variables in the Netlify project settings for the production context:
