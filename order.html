@@ -518,7 +518,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         <div class="progress"><span></span></div>
 
-        <form id="orderForm" action="https://formspree.io/f/xpqkodow" method="POST">
+        <form id="orderForm" action="/api/order" method="POST">
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">
           <input type="hidden" name="request_source" value="Rinko Delivery Order Portal">
           <input type="hidden" name="_subject" value="New Rinko Delivery Request">
           <input type="hidden" name="order_id" id="hiddenOrderId">
@@ -697,7 +698,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         <div class="price">
           <span>Estimated total</span>
-          <strong id="total">$12.10</strong>
+          <strong id="total">$13.82</strong>
           <p class="note">Your request will be reviewed and confirmed shortly. Final pricing and scheduling are provided after review.</p>
         </div>
 
@@ -816,7 +817,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       const promo = getPromoRule(promoCode.value);
       window.__rinkoLastPromo = promo;
 
-      const base = Number(size.dataset.base || 10); // Small $10, Medium $15, Large $20
+      const base = Number(size.dataset.base || 5); // Small $5, Medium $8, Large $12
       const adminSettings = getAdminSettings();
       const perMile = Number(adminSettings.sedanPerMile || 2.10);
       const distanceFee = +(miles * perMile).toFixed(2);
@@ -903,11 +904,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       }
 
       try {
-        const data = new FormData(form);
+        const data = Object.fromEntries(new FormData(form).entries());
         const response = await fetch(form.action, {
           method: "POST",
-          body: data,
-          headers: { "Accept": "application/json" }
+          body: JSON.stringify(data),
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          }
         });
 
         if (response.ok) {
@@ -919,14 +923,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           setTimeout(() => window.location.href = "thank-you.html?order=" + encodeURIComponent(orderId), 700);
         } else {
           const errorText = await response.text().catch(() => "");
-          alert("The request was saved in this browser, but Formspree did not accept it. Check your Formspree endpoint or email verification. " + errorText.slice(0, 120));
+          alert("The request was saved in this browser, but the email service did not accept it. Please try again or contact us directly. " + errorText.slice(0, 120));
           if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
           }
         }
       } catch(err) {
-        alert("Connection issue. Your request was saved in this browser, but it was not sent by email. Please check internet/Formspree and try again.");
+        alert("Connection issue. Your request was saved in this browser, but it was not sent by email. Please try again or contact us directly.");
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = originalText;

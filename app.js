@@ -2,9 +2,9 @@ function updateTotal() {
   const size = document.getElementById("size").value;
   const distance = parseFloat(document.getElementById("distance").value) || 0;
 
-  let base = 10;
-  if (size === "medium") base = 15;
-  if (size === "large") base = 20;
+  let base = 5;
+  if (size === "medium") base = 8;
+  if (size === "large") base = 12;
 
   const pricePerMile = 2.10;
 

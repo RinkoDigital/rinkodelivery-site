@@ -1878,13 +1878,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </p>
           </div>
           <div class="contact-list">
-            <div class="contact-item"><strong>Email</strong><span>contact@rinkodelivery.com</span></div>
+            <div class="contact-item"><strong>Email</strong><span>rinkodanna@gmail.com</span></div>
             <div class="contact-item"><strong>Service Area</strong><span>Seattle, Bellevue, Kirkland, Bothell, Redmond, Woodinville, and nearby areas</span></div>
             <div class="contact-item"><strong>Business Hours</strong><span>Monday to Saturday · 8:00 AM to 6:00 PM</span></div>
           </div>
         </div>
         <div class="panel reveal">
-<form id="contact-form">
+<form id="contact-form" action="/api/contact" method="POST">
+  <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0" />
   <div class="row-2">
     <input type="text" name="name" placeholder="Name" required />
     <input type="email" name="email" placeholder="Email" required />
@@ -1948,7 +1949,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div>
           <div class="footer-title">Contact</div>
           <div class="footer-links">
-            <span>contact@rinkodelivery.com</span>
+            <span>rinkodanna@gmail.com</span>
                         <span>Mon-Sat · 8:00 AM - 6:00 PM</span>
           </div>
         </div>
@@ -2004,27 +2005,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
     if (termsError) termsError.classList.remove("show");
 
-    const data = new FormData(form);
+    const data = Object.fromEntries(new FormData(form).entries());
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalText = submitButton ? submitButton.textContent : "";
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Sending...";
+    }
 
-    const response = await fetch("https://formspree.io/f/mnjlbngq", {
-      method: "POST",
-      body: data,
-      headers: {
-        'Accept': 'application/json'
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!response.ok) throw new Error("Contact request was not accepted");
+
+      // 📊 RASTREAMENTO DE LEAD
+      gtag('event', 'form_submit', {
+        'event_category': 'lead',
+        'event_label': 'contact_form'
+      });
+
+      window.location.href = "/thank-you.html";
+    } catch (error) {
+      alert("We could not send your request right now. Please try again or email rinkodanna@gmail.com.");
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
       }
-    });
-
-    if (response.ok) {
-
-  // 📊 RASTREAMENTO DE LEAD
-  gtag('event', 'form_submit', {
-    'event_category': 'lead',
-    'event_label': 'contact_form'
-  });
-
-  window.location.href = "/thank-you.html";
-} else {
-      alert("Error sending form. Please try again.");
     }
   });
 </script>
