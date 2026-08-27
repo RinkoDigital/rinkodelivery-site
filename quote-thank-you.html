@@ -18,24 +18,29 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root{
-      --navy:#04162c;
-      --navy-2:#0a2547;
+      --bg:#050f1f;
+      --surface:rgba(255,255,255,0.045);
+      --surface-strong:rgba(255,255,255,0.08);
+      --border:rgba(255,255,255,0.10);
       --orange:#ff8a2a;
+      --orange2:#ea7310;
       --orange-2:#ffb166;
-      --bg:#f5f8fc;
-      --text:#17304d;
-      --muted:#64758a;
-      --border:#dbe5f0;
-      --green:#16713a;
-      --green-bg:#eaf8ef;
-      --green-border:#bfe9ca;
+      --heading:#f3f6fb;
+      --text:#c7d0de;
+      --muted:#8b96a8;
+      --green:#3ddc84;
+      --green-bg:rgba(61,220,132,.12);
+      --green-border:rgba(61,220,132,.32);
+      --shadow:0 24px 60px rgba(0,0,0,.45);
+      --font:'Inter', Arial, Helvetica, sans-serif;
     }
     *{box-sizing:border-box}
     body{
-      font-family:'Inter',Arial,Helvetica,sans-serif;
+      font-family:var(--font);
+      -webkit-font-smoothing:antialiased;
       background:
-        radial-gradient(circle at 8% 8%, rgba(255,138,42,.16), transparent 32%),
-        radial-gradient(circle at 92% 18%, rgba(4,22,44,.08), transparent 38%),
+        radial-gradient(circle at 8% 8%, rgba(255,138,42,.14), transparent 34%),
+        radial-gradient(circle at 92% 18%, rgba(255,255,255,.05), transparent 38%),
         var(--bg);
       display:grid;
       place-items:center;
@@ -48,11 +53,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     .wrap{max-width:640px;width:100%}
 
     .box{
-      background:#ffffff;
+      background:var(--surface);
       padding:40px 38px 34px;
       border-radius:28px;
       text-align:left;
-      box-shadow:0 30px 70px rgba(4,22,44,.14), 0 4px 14px rgba(4,22,44,.06);
+      box-shadow:var(--shadow);
       border:1px solid var(--border);
       position:relative;
       overflow:hidden;
@@ -63,7 +68,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       position:absolute;
       top:0;left:0;right:0;
       height:6px;
-      background:linear-gradient(90deg,var(--orange),var(--orange-2) 45%,var(--navy));
+      background:linear-gradient(90deg,var(--orange),var(--orange-2) 45%,var(--orange2));
     }
 
     @keyframes riseIn{
@@ -71,7 +76,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       to{opacity:1;transform:translateY(0)}
     }
 
-    .logo{display:flex;align-items:center;gap:12px;font-weight:900;color:var(--navy);margin-bottom:26px;font-size:1.05rem}
+    .logo{display:flex;align-items:center;gap:12px;font-weight:900;color:var(--heading);margin-bottom:26px;font-size:1.05rem}
     .logo img{height:40px;width:auto}
     .logo svg.fallback{display:none;height:36px;width:36px}
 
@@ -98,7 +103,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       margin-bottom:6px;
     }
 
-    h1{color:var(--navy);margin:0 0 12px;font-size:clamp(1.9rem,5vw,2.6rem);letter-spacing:-.02em;line-height:1.1}
+    h1{color:var(--heading);margin:0 0 12px;font-size:clamp(1.9rem,5vw,2.6rem);letter-spacing:-.02em;line-height:1.1}
     p{color:var(--muted);line-height:1.65;margin:0 0 6px;font-size:.99rem}
 
     /* Stepper */
@@ -120,29 +125,29 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     .step.done:not(:last-child)::after{background:var(--orange)}
     .dot{
       width:28px;height:28px;border-radius:50%;
-      background:#fff;border:2px solid var(--border);
+      background:var(--bg);border:2px solid var(--border);
       display:flex;align-items:center;justify-content:center;
       margin:0 auto 8px;position:relative;z-index:1;
       font-size:.75rem;font-weight:800;color:var(--muted);
     }
-    .step.done .dot{background:var(--orange);border-color:var(--orange);color:#fff}
-    .step.current .dot{border-color:var(--orange);color:var(--orange);box-shadow:0 0 0 4px rgba(255,138,42,.15)}
+    .step.done .dot{background:var(--orange);border-color:var(--orange);color:#04162c}
+    .step.current .dot{border-color:var(--orange);color:var(--orange);box-shadow:0 0 0 4px rgba(255,138,42,.18)}
     .step .label{font-size:.72rem;font-weight:700;color:var(--muted)}
-    .step.done .label,.step.current .label{color:var(--navy)}
+    .step.done .label,.step.current .label{color:var(--heading)}
 
     /* Request summary (populated from the contact form's own confirmation, not localStorage) */
-    .summary{margin:26px 0 8px;border:1px solid var(--border);border-radius:18px;overflow:hidden;background:#fbfcfe}
+    .summary{margin:26px 0 8px;border:1px solid var(--border);border-radius:18px;overflow:hidden;background:rgba(255,255,255,.025)}
     .summary-head{padding:12px 16px;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);border-bottom:1px solid var(--border)}
-    .row{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:12px 16px;border-bottom:1px solid #edf2f7}
+    .row{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:12px 16px;border-bottom:1px solid var(--border)}
     .row:last-child{border-bottom:0}
     .row .label-group{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:.9rem}
     .row .label-group svg{width:16px;height:16px;flex-shrink:0;color:var(--orange)}
-    .row strong{text-align:right;color:var(--navy);font-size:.92rem;max-width:60%}
+    .row strong{text-align:right;color:var(--heading);font-size:.92rem;max-width:60%}
 
     .note{
-      background:linear-gradient(135deg,#fff7ef,#fff2e4);
-      border:1px solid #ffd8b8;
-      color:#7a3d08;
+      background:rgba(255,138,42,.08);
+      border:1px solid rgba(255,138,42,.28);
+      color:var(--orange-2);
       border-radius:16px;
       padding:16px 18px;
       margin-top:20px;
@@ -150,26 +155,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       line-height:1.6;
       display:flex;gap:12px;align-items:flex-start;
     }
+    .note strong{color:var(--heading)}
     .note svg{width:20px;height:20px;flex-shrink:0;margin-top:1px}
 
     .trust{display:flex;gap:22px;flex-wrap:wrap;margin-top:20px;padding-top:18px;border-top:1px solid var(--border)}
     .trust-item{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.84rem;font-weight:600}
-    .trust-item svg{width:18px;height:18px;color:var(--navy);flex-shrink:0}
+    .trust-item svg{width:18px;height:18px;color:var(--orange);flex-shrink:0}
 
     .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
     a.btn{
       display:inline-flex;align-items:center;gap:8px;
-      background:var(--orange);color:white;
+      background:var(--orange);color:#04162c;
       padding:14px 20px;border-radius:999px;
       text-decoration:none;font-weight:800;font-size:.92rem;
       box-shadow:0 8px 20px rgba(255,138,42,.28);
       transition:transform .15s ease, box-shadow .15s ease;
     }
     a.btn:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(255,138,42,.36)}
-    a.btn.secondary{background:var(--navy);box-shadow:0 8px 20px rgba(4,22,44,.22)}
-    a.btn.secondary:hover{box-shadow:0 12px 26px rgba(4,22,44,.3)}
-    a.btn.ghost{background:#eef4fb;color:var(--navy);box-shadow:none}
-    a.btn.ghost:hover{background:#e3ecf7;box-shadow:none}
+    a.btn.secondary{background:var(--surface-strong);color:var(--heading);border:1px solid var(--border);box-shadow:none}
+    a.btn.secondary:hover{background:rgba(255,255,255,.12);box-shadow:none}
+    a.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border);box-shadow:none}
+    a.btn.ghost:hover{background:var(--surface);box-shadow:none}
     a.btn svg{width:16px;height:16px}
 
     @media (max-width:480px){
@@ -189,15 +195,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <img src="site-logo-header.png" alt="Rinko Delivery logo"
            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
       <svg class="fallback" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="7" fill="#04162C"/>
-        <path d="M6 15.5L10.5 8.5H14L18 15.5H15.3L14.6 14.2H9.8L9.1 15.5H6Z" fill="#FF8A2A"/>
+        <rect width="24" height="24" rx="7" fill="#FF8A2A"/>
+        <path d="M6 15.5L10.5 8.5H14L18 15.5H15.3L14.6 14.2H9.8L9.1 15.5H6Z" fill="#04162C"/>
       </svg>
       Rinko Delivery
     </div>
 
     <div class="status-icon">
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M5 13l4 4L19 7" stroke="#16713a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 13l4 4L19 7" stroke="#3ddc84" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
 
@@ -212,7 +218,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </ul>
 
     <div class="note">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#7a3d08" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
       <span><strong>Need a price right now instead of waiting on a reply?</strong> Most single-item local deliveries don't need the contact form at all — the instant calculator or order portal will get you a number in under a minute.</span>
     </div>
 

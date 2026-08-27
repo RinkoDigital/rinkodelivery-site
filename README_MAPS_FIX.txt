@@ -7,10 +7,10 @@ O que foi corrigido:
 - order.html: distância real atualiza o campo distance_miles e recalcula o total automaticamente.
 - order.html: removido conflito de JavaScript no tracking.
 
-Integração atual:
-- OpenStreetMap + Leaflet para exibir o mapa.
-- Geoapify Geocoding API para localizar os endereços.
-- Geoapify Routing API para calcular distância e tempo de direção.
-- Variável privada `GEOAPIFY_API_KEY` na Netlify.
+Google Cloud necessário:
+- Maps JavaScript API
+- Places API
+- Directions API
+- Billing ativo
 
-A conta gratuita da Geoapify não exige cartão. A chave fica somente na Netlify e nunca é enviada ao navegador.
+A chave atual foi mantida como estava no seu arquivo. Se a rota não calcular, confira restrição de domínio/referrer no Google Cloud.

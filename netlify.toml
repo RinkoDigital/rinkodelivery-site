@@ -18,6 +18,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/promo"
+  to = "/.netlify/functions/promo"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/route"
   to = "/.netlify/functions/route"
   status = 200

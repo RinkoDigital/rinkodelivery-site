@@ -12,6 +12,7 @@ const {
   trackEvent,
   upsertContact
 } = require("../lib/brevo");
+const { getInternalRules, getDefaultPublicRules, normalizeCode } = require("../lib/promo-rules");
 
 const notifyEmail = () => clean(process.env.BREVO_NOTIFY_EMAIL || "rinkodanna@gmail.com", 320);
 
@@ -20,6 +21,41 @@ function makeOrderId(value) {
   return /^RD-[A-Za-z0-9_-]{4,50}$/.test(supplied)
     ? supplied
     : `RD-${Date.now().toString().slice(-8)}`;
+}
+
+// Mirrors the default pricing engine in order.html (base by item size,
+// $2.10/mi, $15 heavy-item fee over 20lb, speed fees). Independently
+// recomputes the total server-side so a forged "estimated_total" hidden
+// field doesn't go unnoticed — this does NOT block the request (everything
+// is reviewed by a person before confirming either way), it just flags a
+// mismatch for that reviewer. If prices were customized through the
+// in-browser admin panel (which is per-browser localStorage, not shared
+// with this function), this recheck won't reflect that customization —
+// treat "could not verify" as "check manually," not as an error.
+const SIZE_BASE = { Small: 5, Medium: 8, Large: 12 };
+const SPEED_FEE = { "Standard Same-Day": 0, "Express Priority": 15, Scheduled: 0 };
+const SEDAN_PER_MILE = 2.10;
+const HEAVY_FEE = 15;
+
+function verifyTotal({ itemSize, speed, distanceMiles, weight, promoCode }) {
+  const base = SIZE_BASE[itemSize];
+  const speedFee = SPEED_FEE[speed];
+  if (base == null || speedFee == null || !Number.isFinite(distanceMiles) || distanceMiles <= 0) {
+    return null;
+  }
+
+  const distanceFee = Math.round(distanceMiles * SEDAN_PER_MILE * 100) / 100;
+  const rawHeavyFee = String(weight || "").includes("Over 20") ? HEAVY_FEE : 0;
+
+  const code = normalizeCode(promoCode);
+  const rule = code ? (getInternalRules()[code] || getDefaultPublicRules()[code] || null) : null;
+  const heavyFee = rule && rule.waiveHeavyFee ? 0 : rawHeavyFee;
+
+  const subtotal = Math.round((base + distanceFee + speedFee + heavyFee) * 100) / 100;
+  const discountAmount = Math.round(subtotal * (rule ? rule.discountPercent : 0) * 100) / 100;
+  const total = Math.round((subtotal - discountAmount) * 100) / 100;
+
+  return { total, promoRecognized: Boolean(rule), promoLabel: rule ? rule.label : (code ? "Unrecognized code" : "No code") };
 }
 
 exports.handler = async (event) => {
@@ -56,6 +92,23 @@ exports.handler = async (event) => {
     return json(event, 400, { ok: false, error: "Please complete the required fields" });
   }
 
+  const verified = verifyTotal({ itemSize, speed, distanceMiles: distanceNumber, weight, promoCode: promo });
+  const clientTotalNumber = Number(String(total).replace(/[^0-9.-]/g, ""));
+  let priceCheck;
+  if (!verified) {
+    priceCheck = "Could not independently verify (unrecognized size/speed combo, or custom admin pricing) — review manually.";
+  } else {
+    const diff = Number.isFinite(clientTotalNumber) ? Math.abs(clientTotalNumber - verified.total) : null;
+    priceCheck = (diff === null || diff > 0.05)
+      ? `MISMATCH — server recalculates $${verified.total.toFixed(2)} (site sent ${total || "nothing"}). Verify before confirming.`
+      : `OK — matches server recalculation ($${verified.total.toFixed(2)}).`;
+  }
+  const promoCheck = !promo
+    ? "No code entered"
+    : verified
+      ? (verified.promoRecognized ? `Recognized — ${verified.promoLabel}` : "NOT recognized by the server — do not honor unless verified another way")
+      : "Not checked (see price check above)";
+
   const fields = [
     ["Order ID", orderId],
     ["Customer", name],
@@ -70,9 +123,11 @@ exports.handler = async (event) => {
     ["Package type", packageType],
     ["Estimated weight", weight],
     ["Delivery speed", speed],
-    ["Estimated total", total],
+    ["Estimated total (site)", total],
+    ["Price check (server)", priceCheck],
     ["Pricing breakdown", breakdown],
     ["Promo code", promo],
+    ["Promo check (server)", promoCheck],
     ["Payment preference", paymentPreference],
     ["Instructions", instructions],
     ["Agreement", "Accepted"]
