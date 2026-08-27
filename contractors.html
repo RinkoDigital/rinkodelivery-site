@@ -4,46 +4,174 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex,nofollow" />
-  <title>Contractor Scheduling | Rinko Delivery</title>
+  <title>Contractor Portal | Rinko Delivery</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/rinko-saas-config.js"></script>
   <style>
     :root{--navy:#04162c;--orange:#ff8a2a;--bg:#f4f7fb;--text:#17304d;--muted:#64758a;--border:#dbe5f0;--white:#fff;}
-    *{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,rgba(255,138,42,.22),transparent 32%),linear-gradient(180deg,#04162c 0%,#102f57 42%,#f4f7fb 42%);min-height:100vh;color:var(--text);padding:28px}
-    .wrap{width:min(860px,100%);margin:0 auto}.brand{display:flex;align-items:center;gap:12px;color:white;font-weight:900;margin-bottom:36px}.brand img{height:48px;width:auto}.card{background:white;border:1px solid var(--border);border-radius:28px;box-shadow:0 26px 70px rgba(0,0,0,.18);padding:clamp(24px,5vw,44px)}
-    .badge{display:inline-flex;background:#fff4ea;color:#9a4a08;border:1px solid #ffd3ad;border-radius:999px;padding:9px 13px;font-weight:900;font-size:.85rem;margin-bottom:16px}h1{margin:0 0 12px;color:var(--navy);font-size:clamp(2rem,5vw,3.5rem);letter-spacing:-1px}p{color:var(--muted);line-height:1.7}.gate{display:grid;gap:12px;margin-top:22px}input{width:100%;border:1px solid var(--border);border-radius:16px;padding:14px 16px;font-size:1rem}button,.btn{border:0;background:var(--orange);color:white;border-radius:999px;padding:14px 20px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-flex;justify-content:center}.secondary{background:var(--navy)}.panel{display:none;margin-top:24px;border:1px solid var(--border);border-radius:22px;padding:22px;background:#fbfdff}.error{display:none;color:#b42318;font-weight:800}.links{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.small{font-size:.9rem;color:#7b8797}.notice{background:#eef4fb;border:1px solid var(--border);border-radius:18px;padding:14px;margin-top:18px}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,rgba(255,138,42,.22),transparent 32%),linear-gradient(180deg,#04162c 0%,#102f57 42%,#f4f7fb 42%);min-height:100vh;color:var(--text);padding:28px}
+    .wrap{width:min(960px,100%);margin:0 auto}
+    .brand{display:flex;align-items:center;gap:12px;color:white;font-weight:900;margin-bottom:28px}
+    .brand img{height:40px;width:auto}
+    .card{background:white;border:1px solid var(--border);border-radius:24px;box-shadow:0 26px 70px rgba(0,0,0,.16);padding:clamp(22px,4vw,36px);margin-bottom:20px}
+    h1{margin:0 0 10px;color:var(--navy);font-size:clamp(1.7rem,4vw,2.4rem)}
+    p.muted{color:var(--muted);line-height:1.6;margin:0 0 18px}
+    label{display:grid;gap:6px;font-weight:800;margin-bottom:14px}
+    input{width:100%;border:1px solid var(--border);border-radius:14px;padding:13px 14px;font-size:1rem}
+    button,.btn{border:0;border-radius:999px;padding:13px 20px;font-weight:900;cursor:pointer;background:var(--orange);color:white}
+    .btn.secondary{background:#eef5ff;color:var(--navy);border:1px solid var(--border)}
+    .hidden{display:none!important}
+    .msg{font-weight:800;margin-top:10px}
+    .order{border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:14px}
+    .order h3{margin:0 0 6px;color:var(--navy)}
+    .order .route{color:var(--muted);margin-bottom:10px}
+    .order .meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;font-size:.88rem}
+    .pill{display:inline-flex;padding:5px 10px;border-radius:999px;font-weight:900;font-size:.78rem}
+    .pill.pending{background:#fff4ea;color:#9a4a08}
+    .pill.assigned{background:#eef4fb;color:#1c4a8a}
+    .pill.picked_up{background:#eef4fb;color:#1c4a8a}
+    .pill.delivered{background:#ecfff1;color:#17602a}
+    .pill.paid{background:#ecfff1;color:#17602a}
+    .pill.unpaid{background:#fff4ea;color:#9a4a08}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .empty{color:var(--muted);text-align:center;padding:20px}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="brand"><img src="site-logo-header.png" alt="Rinko Delivery logo" onerror="this.style.display='none'"> Rinko Delivery</div>
-    <section class="card">
-      <span class="badge">Private contractor access</span>
-      <h1>Contractor scheduling portal</h1>
-      <p>This page is separate from the customer experience. Customers submit delivery requests through the Order Portal; contractors use this private page only when Rinko Delivery shares access.</p>
-      <div class="notice"><strong>Access code:</strong> use the internal contractor code provided by Rinko Delivery.</div>
-      <div class="gate" id="gate">
-        <input id="code" type="password" placeholder="Enter contractor access code" autocomplete="off" />
-        <button type="button" onclick="unlockContractorPortal()">Open Contractor Scheduling</button>
-        <div class="error" id="error">Incorrect code. Please request the current contractor code from Rinko Delivery.</div>
-      </div>
-      <div class="panel" id="contractorPanel">
-        <h2 style="margin-top:0;color:var(--navy)">Contractor Calendly</h2>
-        <p>Use this link only for contractor availability, onboarding, dispatch calls, or internal coordination. Do not send this page to customers.</p>
-        <div class="links">
-          <a class="btn" href="https://calendly.com/contact-rinkodelivery/30min" target="_blank" rel="noopener">Open Contractor Calendly</a>
-          <a class="btn secondary" href="index.html">Back to Main Site</a>
+    <div class="brand"><img src="site-logo-header.png" alt="Rinko Delivery logo" onerror="this.style.display='none'"> Rinko Delivery — Contractor Portal</div>
+
+    <section class="card" id="loginView">
+      <h1>Contractor Login</h1>
+      <p class="muted">Use the email and password Rinko Delivery gave you. If you don't have an account yet, contact Rinko Delivery.</p>
+      <label>Email<input id="loginEmail" type="email" placeholder="you@email.com"></label>
+      <label>Password<input id="loginPassword" type="password" placeholder="Your password"></label>
+      <button id="loginBtn" style="width:100%;">Login</button>
+      <p class="msg" id="loginMsg"></p>
+    </section>
+
+    <section class="card hidden" id="portalView">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h1 style="margin:0;">My deliveries</h1>
+        <div>
+          <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
+          <button class="btn secondary" id="logoutBtn" type="button">Logout</button>
         </div>
-        <p class="small">For stronger protection later, move this page behind a real login or Netlify password protection. This static gate is for light privacy and cleaner UX only.</p>
       </div>
+      <p class="muted">Orders Rinko Delivery has assigned to you. Update the status as you go.</p>
+      <div id="orderList"></div>
     </section>
   </div>
+
 <script>
-  function unlockContractorPortal(){
-    const code = document.getElementById('code').value.trim().toUpperCase();
-    const ok = code === 'RINKO-CONTRACTOR';
-    document.getElementById('error').style.display = ok ? 'none' : 'block';
-    document.getElementById('contractorPanel').style.display = ok ? 'block' : 'none';
-    if(ok) document.getElementById('gate').style.display = 'none';
+  const client = window.rinkoClient;
+  const loginView = document.getElementById("loginView");
+  const portalView = document.getElementById("portalView");
+  const ORDER_FLOW = ["assigned", "picked_up", "delivered"];
+  const STATUS_LABEL = { assigned: "Assigned", picked_up: "Picked up", delivered: "Delivered", pending: "Pending", cancelled: "Cancelled" };
+
+  async function checkSession() {
+    const { data } = await client.auth.getSession();
+    if (!data.session) {
+      loginView.classList.remove("hidden");
+      portalView.classList.add("hidden");
+      return;
+    }
+
+    const { data: profile, error } = await client
+      .from("rinko_profiles")
+      .select("role, active, full_name")
+      .eq("id", data.session.user.id)
+      .single();
+
+    if (error || !profile || profile.role !== "contractor" || profile.active === false) {
+      document.getElementById("loginMsg").textContent = "This account is not an active contractor account.";
+      document.getElementById("loginMsg").style.color = "#8a1f1f";
+      await client.auth.signOut();
+      loginView.classList.remove("hidden");
+      portalView.classList.add("hidden");
+      return;
+    }
+
+    loginView.classList.add("hidden");
+    portalView.classList.remove("hidden");
+    await loadOrders();
+
+    client.channel("rinko_orders_contractor")
+      .on("postgres_changes", { event: "*", schema: "public", table: "rinko_orders" }, () => loadOrders())
+      .subscribe();
   }
+
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const msg = document.getElementById("loginMsg");
+    msg.style.color = "#8a1f1f";
+    msg.textContent = "Checking login...";
+
+    const { error } = await client.auth.signInWithPassword({ email, password });
+    if (error) {
+      msg.textContent = "Login failed: " + error.message;
+      return;
+    }
+    msg.textContent = "";
+    await checkSession();
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await client.auth.signOut();
+    await checkSession();
+  });
+
+  document.getElementById("refreshBtn").addEventListener("click", loadOrders);
+
+  async function loadOrders() {
+    const list = document.getElementById("orderList");
+    const { data, error } = await client
+      .from("rinko_orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      list.innerHTML = `<div class="empty">Could not load orders: ${error.message}</div>`;
+      return;
+    }
+    if (!data || !data.length) {
+      list.innerHTML = `<div class="empty">No deliveries assigned to you yet.</div>`;
+      return;
+    }
+
+    list.innerHTML = data.map(o => {
+      const nextStatus = ORDER_FLOW[ORDER_FLOW.indexOf(o.order_status) + 1];
+      const nextBtn = (o.order_status !== "delivered" && o.order_status !== "cancelled" && nextStatus)
+        ? `<button onclick="advanceStatus('${o.id}', '${nextStatus}')">Mark as ${STATUS_LABEL[nextStatus]}</button>`
+        : "";
+      return `
+        <div class="order">
+          <h3>${o.order_code}</h3>
+          <div class="route">${o.pickup_address} → ${o.dropoff_address}</div>
+          <div class="meta">
+            <span class="pill ${o.order_status}">${STATUS_LABEL[o.order_status] || o.order_status}</span>
+            <span class="pill ${o.payment_status}">${o.payment_status}</span>
+            <span>${o.customer_name} · ${o.customer_phone || o.customer_email}</span>
+            <span>${o.item_size} · ${o.delivery_speed}</span>
+            ${o.preferred_time ? `<span>Preferred: ${o.preferred_time}</span>` : ""}
+          </div>
+          ${o.instructions ? `<p class="muted">Notes: ${o.instructions}</p>` : ""}
+          <div class="actions">${nextBtn}</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  async function advanceStatus(orderId, status) {
+    const { error } = await client.from("rinko_orders").update({ order_status: status }).eq("id", orderId);
+    if (error) alert(error.message);
+    await loadOrders();
+  }
+
+  checkSession();
 </script>
 </body>
 </html>

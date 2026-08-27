@@ -843,7 +843,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           if (window.dataLayer) {
             window.dataLayer.push({ event: "order_request_submit", order_id: orderId, estimated_total: hiddenTotal.value });
           }
-          setTimeout(() => window.location.href = "thank-you.html?order=" + encodeURIComponent(orderId), 700);
+          let responseData = null;
+          try { responseData = await response.json(); } catch (e) {}
+          if (responseData && responseData.checkoutUrl) {
+            // Send the customer straight to Stripe to pay now instead of
+            // the old "we'll send an invoice later" flow.
+            window.location.href = responseData.checkoutUrl;
+          } else {
+            setTimeout(() => window.location.href = "thank-you.html?order=" + encodeURIComponent(orderId), 700);
+          }
         } else {
           const errorText = await response.text().catch(() => "");
           alert("The request was saved in this browser, but the email service did not accept it. Please try again or contact us directly. " + errorText.slice(0, 120));

@@ -89,6 +89,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     .status { display:inline-flex; padding:6px 10px; border-radius:999px; font-weight:900; font-size:.78rem; }
     .status.active { background:#ecfff1; color:#17602a; }
     .status.off { background:#fff0f0; color:#8a1f1f; }
+    .status.pending { background:#fff4ea; color:#9a4a08; }
+    .status.assigned { background:#eef4fb; color:#1c4a8a; }
+    .status.picked_up { background:#eef4fb; color:#1c4a8a; }
+    .status.delivered { background:#ecfff1; color:#17602a; }
+    .status.cancelled { background:#fff0f0; color:#8a1f1f; }
+    .status.paid { background:#ecfff1; color:#17602a; }
+    .status.unpaid { background:#fff4ea; color:#9a4a08; }
+    .status.failed { background:#fff0f0; color:#8a1f1f; }
+    select.inline { width:auto; padding:8px 10px; border-radius:10px; font-size:.85rem; }
+    .small { font-size:.85rem; color:var(--muted); }
     .msg { margin-top:12px; font-weight:900; color:#17602a; }
     .hidden { display:none !important; }
     @media(max-width:900px){ .grid, .row, .row3 { grid-template-columns:1fr; } }
@@ -130,7 +140,30 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <section id="adminView" class="hidden">
       <h1 class="white-title">Command Center</h1>
-      <p class="hero-copy">Manage Rinko Delivery pricing, coupons, internal senior/heavy rules, expiration dates, usage limits, and live settings from one SaaS-style dashboard.</p>
+      <p class="hero-copy">Manage Rinko Delivery orders, pricing, coupons, and contractor assignments from one SaaS-style dashboard.</p>
+
+      <div class="grid">
+        <div class="panel full">
+          <h2>Orders</h2>
+          <p class="muted">Every order submitted through the Order Portal. Assign a contractor and update the status as the delivery moves along. <button class="btn secondary" id="refreshOrdersBtn" type="button" style="padding:8px 14px;font-size:.82rem;">Refresh</button></p>
+          <div style="overflow:auto;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Customer</th>
+                  <th>Route</th>
+                  <th>Total</th>
+                  <th>Payment</th>
+                  <th>Status</th>
+                  <th>Contractor</th>
+                </tr>
+              </thead>
+              <tbody id="orderTable"><tr><td colspan="7" class="small">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
       <div class="grid">
         <div class="panel">
@@ -244,17 +277,45 @@ function moneyValue(id) {
 
 async function checkSession() {
   const { data } = await client.auth.getSession();
-  if (data.session) {
-    loginView.classList.add("hidden");
-    adminView.classList.remove("hidden");
-    logoutBtn.classList.remove("hidden");
-    await loadSettings();
-    await loadCoupons();
-  } else {
+  if (!data.session) {
     loginView.classList.remove("hidden");
     adminView.classList.add("hidden");
     logoutBtn.classList.add("hidden");
+    return;
   }
+
+  // A valid login isn't enough — only a profile with role='admin' may see
+  // this dashboard (a contractor account should use the contractor
+  // portal instead). RLS already blocks a contractor from reading orders/
+  // settings/coupons either way; this just gives a clear message instead
+  // of a confusingly empty dashboard.
+  const { data: profile, error: profileError } = await client
+    .from("rinko_profiles")
+    .select("role, active")
+    .eq("id", data.session.user.id)
+    .single();
+
+  if (profileError || !profile || profile.role !== "admin" || profile.active === false) {
+    document.getElementById("loginMsg").textContent = "This account does not have admin access.";
+    document.getElementById("loginMsg").style.color = "#8a1f1f";
+    await client.auth.signOut();
+    loginView.classList.remove("hidden");
+    adminView.classList.add("hidden");
+    logoutBtn.classList.add("hidden");
+    return;
+  }
+
+  loginView.classList.add("hidden");
+  adminView.classList.remove("hidden");
+  logoutBtn.classList.remove("hidden");
+  await loadContractors();
+  await loadOrders();
+  await loadSettings();
+  await loadCoupons();
+
+  client.channel("rinko_orders_admin")
+    .on("postgres_changes", { event: "*", schema: "public", table: "rinko_orders" }, () => loadOrders())
+    .subscribe();
 }
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
@@ -273,6 +334,81 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
   msg.textContent = "";
   await checkSession();
 });
+
+let contractorsCache = [];
+
+async function loadContractors() {
+  const { data, error } = await client
+    .from("rinko_profiles")
+    .select("id, full_name, active")
+    .eq("role", "contractor")
+    .order("full_name", { ascending: true });
+  if (error) { console.warn("Could not load contractors:", error.message); return; }
+  contractorsCache = data || [];
+}
+
+const ORDER_STATUSES = ["pending", "assigned", "picked_up", "delivered", "cancelled"];
+
+async function loadOrders() {
+  const body = document.getElementById("orderTable");
+  const { data, error } = await client
+    .from("rinko_orders")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (error) {
+    body.innerHTML = `<tr><td colspan="7" class="small">Could not load orders: ${error.message}</td></tr>`;
+    return;
+  }
+  if (!data || !data.length) {
+    body.innerHTML = `<tr><td colspan="7" class="small">No orders yet.</td></tr>`;
+    return;
+  }
+
+  const contractorOptions = (selectedId) => `<option value="">Unassigned</option>` + contractorsCache.map(c =>
+    `<option value="${c.id}" ${c.id === selectedId ? "selected" : ""}>${c.full_name || c.id.slice(0, 8)}${c.active === false ? " (inactive)" : ""}</option>`
+  ).join("");
+
+  const statusOptions = (current) => ORDER_STATUSES.map(s =>
+    `<option value="${s}" ${s === current ? "selected" : ""}>${s.replace("_", " ")}</option>`
+  ).join("");
+
+  body.innerHTML = data.map(o => `
+    <tr>
+      <td><strong>${o.order_code}</strong><br><span class="small">${new Date(o.created_at).toLocaleString()}</span></td>
+      <td>${o.customer_name}<br><span class="small">${o.customer_email}</span></td>
+      <td><span class="small">${o.pickup_address} → ${o.dropoff_address}</span></td>
+      <td>$${Number(o.total).toFixed(2)}</td>
+      <td><span class="status ${o.payment_status}">${o.payment_status}</span></td>
+      <td>
+        <select class="inline" onchange="updateOrderStatus('${o.id}', this.value)">${statusOptions(o.order_status)}</select>
+      </td>
+      <td>
+        <select class="inline" onchange="assignContractor('${o.id}', this.value)">${contractorOptions(o.assigned_contractor)}</select>
+      </td>
+    </tr>
+  `).join("");
+}
+
+async function updateOrderStatus(orderId, status) {
+  const { error } = await client.from("rinko_orders").update({ order_status: status }).eq("id", orderId);
+  if (error) alert(error.message);
+}
+
+async function assignContractor(orderId, contractorId) {
+  const payload = { assigned_contractor: contractorId || null };
+  // Assigning someone bumps a still-pending order to "assigned" automatically.
+  if (contractorId) {
+    const { data: current } = await client.from("rinko_orders").select("order_status").eq("id", orderId).single();
+    if (current && current.order_status === "pending") payload.order_status = "assigned";
+  }
+  const { error } = await client.from("rinko_orders").update(payload).eq("id", orderId);
+  if (error) alert(error.message);
+  await loadOrders();
+}
+
+document.getElementById("refreshOrdersBtn").addEventListener("click", loadOrders);
 
 logoutBtn.addEventListener("click", async () => {
   await client.auth.signOut();

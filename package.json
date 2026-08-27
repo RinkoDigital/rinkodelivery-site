@@ -1,0 +1,10 @@
+{
+  "name": "rinko-delivery-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Rinko Delivery — static site + Netlify Functions (Brevo, Supabase, Stripe).",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "stripe": "^16.12.0"
+  }
+}

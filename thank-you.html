@@ -221,6 +221,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <li class="step"><span class="dot">4</span><span class="label">Out for delivery</span></li>
     </ul>
 
+    <div class="note" id="paidBanner" style="display:none;background:#ecfff1;border-color:#bdf0cd;color:#17602a;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      <span><strong>Payment received.</strong> Your order is paid and waiting for a team member to confirm pickup.</span>
+    </div>
+
     <div class="summary" id="orderSummary" style="display:none;">
       <div class="summary-head">Order summary</div>
       <div class="row">
@@ -293,6 +298,9 @@ function rinkoTrack(eventName, payload = {}) { dataLayer.push({ event: eventName
 rinkoTrack("order_thank_you_view");
 (function(){
   try {
+    if (new URLSearchParams(location.search).get("paid") === "1") {
+      document.getElementById("paidBanner").style.display = "flex";
+    }
     const last = JSON.parse(localStorage.getItem("RINKO_LAST_ORDER") || "null");
     if (!last) return;
     document.getElementById("orderSummary").style.display = "block";
