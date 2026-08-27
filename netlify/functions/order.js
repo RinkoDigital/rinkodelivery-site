@@ -14,6 +14,7 @@ const {
 } = require("../lib/brevo");
 const { getInternalRules, getDefaultPublicRules, normalizeCode } = require("../lib/promo-rules");
 const { getServiceClient } = require("../lib/supabase");
+const { routeDistanceMiles } = require("../lib/geoapify");
 
 const notifyEmail = () => clean(process.env.BREVO_NOTIFY_EMAIL || "rinkodanna@gmail.com", 320);
 
@@ -85,6 +86,25 @@ async function resolvePromo(rawCode) {
     };
   } catch (error) {
     return null;
+  }
+}
+
+// The "distance_miles" field on the order form is a free-typed number —
+// a customer (or anyone calling this endpoint directly) could set it to
+// almost nothing to shrink the per-mile fee. So the price is never based
+// on that number: we recompute the real driving distance from the
+// pickup/drop-off addresses server-side and use THAT for pricing. If the
+// route service is unavailable or the addresses can't be geocoded, we
+// fall back to the customer's number rather than blocking the order —
+// but the internal notification email flags it clearly so it doesn't
+// slip through unnoticed.
+async function resolveVerifiedDistance(pickup, dropoff, clientDistance) {
+  try {
+    const miles = await routeDistanceMiles(pickup, dropoff);
+    return { miles, verified: true };
+  } catch (error) {
+    console.error("Server-side distance verification failed, falling back to customer-submitted distance:", error.message);
+    return { miles: clientDistance, verified: false };
   }
 }
 
@@ -278,30 +298,44 @@ exports.handler = async (event) => {
     return json(event, 400, { ok: false, error: "Please complete the required fields" });
   }
 
-  const verified = await verifyTotal({ itemSize, speed, distanceMiles: distanceNumber, weight, promoCode: promo });
-  const clientTotalNumber = Number(String(total).replace(/[^0-9.-]/g, ""));
-  let priceCheck;
+  // Never price the order off the customer-submitted distance alone —
+  // recompute the real driving distance from the addresses first.
+  const distanceResolution = await resolveVerifiedDistance(pickup, dropoff, distanceNumber);
+  const effectiveDistance = distanceResolution.miles;
+
+  const verified = await verifyTotal({ itemSize, speed, distanceMiles: effectiveDistance, weight, promoCode: promo });
+
+  // If the server can't compute a price (an item size / delivery speed
+  // that doesn't match any known option — the real dropdown on the site
+  // never sends this, so it only happens on a tampered/direct API call),
+  // never fall back to trusting a client-supplied total. That fallback
+  // used to let anyone charge themselves any amount by sending an invalid
+  // itemSize/speed on purpose. Reject the request instead.
   if (!verified) {
-    priceCheck = "Could not independently verify (unrecognized size/speed combo) — review manually.";
-  } else {
-    const diff = Number.isFinite(clientTotalNumber) ? Math.abs(clientTotalNumber - verified.total) : null;
-    priceCheck = (diff === null || diff > 0.05)
-      ? `MISMATCH — server recalculates $${verified.total.toFixed(2)} (site sent ${total || "nothing"}). Verify before confirming.`
-      : `OK — matches server recalculation ($${verified.total.toFixed(2)}).`;
+    console.error(`Order rejected — could not verify price (itemSize="${itemSize}", speed="${speed}", distance=${effectiveDistance})`);
+    return json(event, 400, { ok: false, error: "We couldn't calculate a price for this request. Please check the item size and delivery speed, then try again." });
+  }
+
+  const clientTotalNumber = Number(String(total).replace(/[^0-9.-]/g, ""));
+  const diff = Number.isFinite(clientTotalNumber) ? Math.abs(clientTotalNumber - verified.total) : null;
+  let priceCheck = (diff === null || diff > 0.05)
+    ? `MISMATCH — server recalculates $${verified.total.toFixed(2)} (site sent ${total || "nothing"}). This is expected when the customer's typed distance differs from the real route — the $${verified.total.toFixed(2)} is what actually gets charged.`
+    : `OK — matches server recalculation ($${verified.total.toFixed(2)}).`;
+  if (!distanceResolution.verified) {
+    priceCheck += ` ⚠ DISTANCE NOT VERIFIED — route service unavailable, priced using the customer-submitted ${distanceNumber} mi. Double-check this order manually.`;
   }
   const promoCheck = !promo
     ? "No code entered"
-    : verified
-      ? (verified.promoRecognized ? `Recognized — ${verified.promoLabel}` : "NOT recognized by the server — do not honor unless verified another way")
-      : "Not checked (see price check above)";
+    : (verified.promoRecognized ? `Recognized — ${verified.promoLabel}` : "NOT recognized by the server — do not honor unless verified another way");
 
-  // The database row uses the server-verified total (falls back to the
-  // browser's number only if verification wasn't possible), so a forged
-  // client-side total never becomes the amount actually charged.
+  // The database row always uses the server-verified total and the
+  // server-verified distance now — verified is guaranteed non-null past
+  // the check above, so a forged client-side distance or total can never
+  // become the amount actually charged.
   const orderRow = await saveOrderToDatabase({
-    orderId, name, email, phone, company, pickup, dropoff, distanceNumber,
+    orderId, name, email, phone, company, pickup, dropoff, distanceNumber: effectiveDistance,
     preferredTime, itemSize, packageType, weight, speed, promo, instructions,
-    verified: verified || (Number.isFinite(clientTotalNumber) ? { total: clientTotalNumber, base: null, distanceFee: null, speedFee: null, heavyFee: null, discountAmount: null, promoLabel: promoCheck, promoRow: null } : null)
+    verified
   });
 
   const checkoutUrl = await createCheckout({ orderRow, event, name, email });
@@ -318,7 +352,9 @@ exports.handler = async (event) => {
     ["Company", company],
     ["Pickup", pickup],
     ["Drop-off", dropoff],
-    ["Distance", `${distance} mi`],
+    ["Distance", distanceResolution.verified
+      ? `${effectiveDistance} mi (server-verified route)${Math.abs(effectiveDistance - distanceNumber) > 0.15 ? ` — customer form showed ${distanceNumber} mi` : ""}`
+      : `${effectiveDistance} mi (⚠ UNVERIFIED — route service failed, using customer-submitted value)`],
     ["Preferred time", preferredTime],
     ["Item size", itemSize],
     ["Package type", packageType],
