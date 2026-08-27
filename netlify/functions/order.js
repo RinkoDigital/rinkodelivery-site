@@ -81,7 +81,7 @@ exports.handler = async (event) => {
   const text = `New Rinko Delivery order request\n\n${textRows(fields)}`;
 
   try {
-    await upsertContact(email);
+    await upsertContact(email, process.env.BREVO_ORDER_LIST_ID);
 
     await sendEmail({
       toEmail: notifyEmail(),

@@ -161,14 +161,24 @@ async function sendEmail({ toEmail, toName, subject, htmlContent, textContent, r
   return brevoRequest("/smtp/email", body);
 }
 
-async function upsertContact(email) {
+function positiveInteger(value) {
+  const parsed = Number.parseInt(String(value || ""), 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+async function upsertContact(email, listIdValue) {
   const normalizedEmail = clean(email, 320);
   if (!emailIsValid(normalizedEmail)) throw new Error("Contact email is invalid");
 
-  return brevoRequest("/contacts", {
+  const listId = positiveInteger(listIdValue);
+  const body = {
     email: normalizedEmail,
     updateEnabled: true
-  });
+  };
+
+  if (listId) body.listIds = [listId];
+
+  return brevoRequest("/contacts", body);
 }
 
 async function trackEvent(eventName, email, eventProperties) {

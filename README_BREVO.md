@@ -2,7 +2,7 @@
 
 Rinko Delivery now sends website contact requests and delivery order requests through the Netlify Functions in `netlify/functions/`. The browser never receives the Brevo API key.
 
-Before recording each custom event, the functions create or update the submitting email as a Brevo contact without adding it to a marketing list. This ensures the event is associated with a contact for automation triggers.
+Before recording each custom event, the functions create or update the submitting email as a Brevo contact. When a list ID is configured, the contact is also added to the matching Brevo list so automations can use the more reliable "Contact added to a list" trigger.
 
 ## Netlify environment variables
 
@@ -14,6 +14,8 @@ Add these variables in the Netlify project settings for the production context:
 - `BREVO_NOTIFY_EMAIL` — inbox that receives new contact and order notifications.
 - `BREVO_SEND_AUTOREPLY` — keep `false` when Brevo Automations sends the customer confirmation, preventing duplicate emails. Use `true` only if the built-in function reply should be used instead.
 - `BREVO_TRACK_EVENTS` — `true` to send `contact_form_submitted` and `order_request_submitted` events to Brevo.
+- `BREVO_CONTACT_LIST_ID` — optional numeric ID of the Brevo list for website contact requests.
+- `BREVO_ORDER_LIST_ID` — optional numeric ID of the Brevo list for delivery order requests.
 
 The four template ID variables are optional. If left blank, the functions use the built-in transactional messages. If a template ID is supplied, create the matching template in Brevo and use these parameter names:
 
@@ -30,6 +32,11 @@ The functions send these custom events after a notification is accepted:
 - `order_request_submitted`
 
 Create automations in Brevo using those events if you want follow-up emails, segmentation, or internal routing. The order event includes `order_id`, `estimated_total`, `distance_miles`, `item_size`, and `delivery_speed`.
+
+If the Brevo editor does not expose custom API events, configure the list IDs above and use these triggers instead:
+
+- Contact automation: **Contact added to a list** → the list referenced by `BREVO_CONTACT_LIST_ID`.
+- Order automation: **Contact added to a list** → the list referenced by `BREVO_ORDER_LIST_ID`.
 
 ## Deployment
 
