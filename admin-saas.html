@@ -14,6 +14,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rinko Admin SaaS</title>
+  <link rel="icon" type="image/png" href="site-favicon.png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/rinko-saas-config.js"></script>
   <style>
@@ -160,6 +161,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 </tr>
               </thead>
               <tbody id="orderTable"><tr><td colspan="7" class="small">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="panel full">
+          <h2>Contractors</h2>
+          <p class="muted">Name each contractor account so they're easy to pick when assigning an order — the account itself is still created in Supabase (Authentication → Users). <button class="btn secondary" id="refreshContractorsBtn" type="button" style="padding:8px 14px;font-size:.82rem;">Refresh</button></p>
+          <div style="overflow:auto;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Account ID</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="contractorTable"><tr><td colspan="5" class="small">Loading…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -340,11 +362,48 @@ let contractorsCache = [];
 async function loadContractors() {
   const { data, error } = await client
     .from("rinko_profiles")
-    .select("id, full_name, active")
+    .select("id, full_name, phone, active")
     .eq("role", "contractor")
     .order("full_name", { ascending: true });
   if (error) { console.warn("Could not load contractors:", error.message); return; }
   contractorsCache = data || [];
+  renderContractors();
+}
+
+function renderContractors() {
+  const body = document.getElementById("contractorTable");
+  if (!body) return;
+  if (!contractorsCache.length) {
+    body.innerHTML = `<tr><td colspan="5" class="small">No contractor accounts yet. Create one in Supabase → Authentication → Users, then hit Refresh here.</td></tr>`;
+    return;
+  }
+  body.innerHTML = contractorsCache.map(c => `
+    <tr>
+      <td><input class="inline" style="width:180px;" id="cname-${c.id}" value="${(c.full_name || "").replace(/"/g, "&quot;")}" placeholder="Contractor name"></td>
+      <td><input class="inline" style="width:150px;" id="cphone-${c.id}" value="${(c.phone || "").replace(/"/g, "&quot;")}" placeholder="Phone (optional)"></td>
+      <td><span class="status ${c.active === false ? "off" : "active"}">${c.active === false ? "Inactive" : "Active"}</span></td>
+      <td><span class="small">${c.id.slice(0, 8)}…</span></td>
+      <td>
+        <button class="btn secondary" style="padding:8px 12px;font-size:.82rem;" onclick="saveContractorInfo('${c.id}')">Save</button>
+        <button class="btn secondary" style="padding:8px 12px;font-size:.82rem;" onclick="toggleContractorActive('${c.id}', ${c.active === false})">${c.active === false ? "Enable" : "Disable"}</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+async function saveContractorInfo(id) {
+  const full_name = document.getElementById(`cname-${id}`).value.trim();
+  const phone = document.getElementById(`cphone-${id}`).value.trim();
+  const { error } = await client.from("rinko_profiles").update({ full_name, phone }).eq("id", id);
+  if (error) return alert(error.message);
+  await loadContractors();
+  await loadOrders();
+}
+
+async function toggleContractorActive(id, makeActive) {
+  const { error } = await client.from("rinko_profiles").update({ active: makeActive }).eq("id", id);
+  if (error) return alert(error.message);
+  await loadContractors();
 }
 
 const ORDER_STATUSES = ["pending", "assigned", "picked_up", "delivered", "cancelled"];
@@ -409,6 +468,7 @@ async function assignContractor(orderId, contractorId) {
 }
 
 document.getElementById("refreshOrdersBtn").addEventListener("click", loadOrders);
+document.getElementById("refreshContractorsBtn").addEventListener("click", loadContractors);
 
 logoutBtn.addEventListener("click", async () => {
   await client.auth.signOut();

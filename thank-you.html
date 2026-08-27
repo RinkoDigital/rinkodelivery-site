@@ -276,7 +276,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </div>
 
     <div class="actions">
-      <a class="btn" href="order.html">
+      <a class="btn" id="trackBtn" href="#" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z"/></svg>
+        Track Your Delivery
+      </a>
+      <a class="btn secondary" id="submitAnotherBtn" href="order.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
         Submit Another Request
       </a>
@@ -300,6 +304,12 @@ rinkoTrack("order_thank_you_view");
   try {
     if (new URLSearchParams(location.search).get("paid") === "1") {
       document.getElementById("paidBanner").style.display = "flex";
+    }
+    const trackToken = new URLSearchParams(location.search).get("t");
+    if (trackToken) {
+      const trackBtn = document.getElementById("trackBtn");
+      trackBtn.href = "rastreio.html?t=" + encodeURIComponent(trackToken);
+      trackBtn.style.display = "inline-flex";
     }
     const last = JSON.parse(localStorage.getItem("RINKO_LAST_ORDER") || "null");
     if (!last) return;

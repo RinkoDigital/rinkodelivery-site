@@ -845,12 +845,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }
           let responseData = null;
           try { responseData = await response.json(); } catch (e) {}
+          const trackParam = (responseData && responseData.trackingToken) ? "&t=" + encodeURIComponent(responseData.trackingToken) : "";
           if (responseData && responseData.checkoutUrl) {
             // Send the customer straight to Stripe to pay now instead of
             // the old "we'll send an invoice later" flow.
             window.location.href = responseData.checkoutUrl;
           } else {
-            setTimeout(() => window.location.href = "thank-you.html?order=" + encodeURIComponent(orderId), 700);
+            setTimeout(() => window.location.href = "thank-you.html?order=" + encodeURIComponent(orderId) + trackParam, 700);
           }
         } else {
           const errorText = await response.text().catch(() => "");

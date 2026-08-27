@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Track Your Delivery | Rinko Delivery</title>
+<link rel="icon" type="image/png" href="site-favicon.png" />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/rinko-saas-config.js"></script>
+<style>
+  :root{
+    --bg:#050f1f;
+    --surface:rgba(255,255,255,0.045);
+    --surface-strong:rgba(255,255,255,0.08);
+    --border:rgba(255,255,255,0.10);
+    --orange:#ff8a2a;
+    --orange2:#ea7310;
+    --orange-2:#ffb166;
+    --heading:#f3f6fb;
+    --text:#c7d0de;
+    --muted:#8b96a8;
+    --green:#3ddc84;
+    --green-bg:rgba(61,220,132,.12);
+    --green-border:rgba(61,220,132,.32);
+    --red:#ff6b6b;
+    --shadow:0 24px 60px rgba(0,0,0,.45);
+    --font:'Inter', Arial, Helvetica, sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:var(--font);
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(circle at 8% 8%, rgba(255,138,42,.14), transparent 34%),
+      radial-gradient(circle at 92% 18%, rgba(255,255,255,.05), transparent 38%),
+      var(--bg);
+    display:grid;
+    place-items:center;
+    min-height:100vh;
+    margin:0;
+    padding:32px 20px;
+    color:var(--text);
+  }
+  .wrap{max-width:640px;width:100%}
+  .box{
+    background:var(--surface);
+    padding:40px 38px 34px;
+    border-radius:28px;
+    text-align:left;
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+    position:relative;
+    overflow:hidden;
+  }
+  .box::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;
+    height:6px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-2) 45%,var(--orange2));
+  }
+  .logo{display:flex;align-items:center;gap:12px;font-weight:900;color:var(--heading);margin-bottom:26px;font-size:1.05rem}
+  .logo img{height:40px;width:auto}
+  h1{color:var(--heading);margin:0 0 12px;font-size:clamp(1.5rem,4vw,2rem);letter-spacing:-.02em;line-height:1.1}
+  p{color:var(--muted);line-height:1.65;margin:0 0 6px;font-size:.99rem}
+
+  .steps{display:flex;margin:28px 0 6px;padding:0;list-style:none}
+  .step{flex:1;text-align:center;position:relative}
+  .step:not(:last-child)::after{content:"";position:absolute;top:14px;left:56%;right:-44%;height:2px;background:var(--border);z-index:0}
+  .step.done:not(:last-child)::after{background:var(--orange)}
+  .dot{width:28px;height:28px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;position:relative;z-index:1;font-size:.75rem;font-weight:800;color:var(--muted)}
+  .step.done .dot{background:var(--orange);border-color:var(--orange);color:#04162c}
+  .step.current .dot{border-color:var(--orange);color:var(--orange);box-shadow:0 0 0 4px rgba(255,138,42,.18)}
+  .step .label{font-size:.7rem;font-weight:700;color:var(--muted)}
+  .step.done .label,.step.current .label{color:var(--heading)}
+
+  .summary{margin:26px 0 8px;border:1px solid var(--border);border-radius:18px;overflow:hidden;background:rgba(255,255,255,.025)}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:12px 16px;border-bottom:1px solid var(--border)}
+  .row:last-child{border-bottom:0}
+  .row span.label-group{color:var(--muted);font-size:.9rem}
+  .row strong{text-align:right;color:var(--heading);font-size:.92rem;max-width:60%}
+
+  .pill{display:inline-flex;padding:4px 10px;border-radius:999px;font-weight:800;font-size:.76rem}
+  .pill.paid{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+  .pill.unpaid,.pill.failed{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.32)}
+
+  .photo{margin-top:22px}
+  .photo img{width:100%;border-radius:16px;border:1px solid var(--border);display:block}
+  .photo .cap{font-size:.82rem;color:var(--muted);margin-top:8px}
+
+  .note{background:rgba(255,138,42,.08);border:1px solid rgba(255,138,42,.28);color:var(--orange-2);border-radius:16px;padding:16px 18px;margin-top:20px;font-size:.9rem;line-height:1.6}
+  .note strong{color:var(--heading)}
+
+  .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+  button.btn{border:0;display:inline-flex;align-items:center;gap:8px;background:var(--surface-strong);color:var(--heading);border:1px solid var(--border);padding:12px 18px;border-radius:999px;font-weight:800;font-size:.86rem;cursor:pointer}
+  button.btn:hover{background:rgba(255,255,255,.12)}
+  .updated{font-size:.78rem;color:var(--muted);margin-top:16px}
+  .empty{text-align:center;padding:20px 0;color:var(--muted)}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="box">
+    <div class="logo">
+      <img src="site-logo-header.png" alt="Rinko Delivery logo" onerror="this.style.display='none'">
+      Rinko Delivery
+    </div>
+
+    <div id="noTokenView" class="hidden">
+      <h1>Tracking link not found</h1>
+      <p>This page needs the tracking link from your order confirmation email. If you can't find it, contact Rinko Delivery with your order number.</p>
+    </div>
+
+    <div id="loadingView">
+      <h1>Loading your delivery...</h1>
+      <p>One moment.</p>
+    </div>
+
+    <div id="notFoundView" class="hidden">
+      <h1>We couldn't find this order</h1>
+      <p>The tracking link may be incorrect or expired. Contact Rinko Delivery with your order number for help.</p>
+    </div>
+
+    <div id="orderView" class="hidden">
+      <h1 id="oTitle">Order —</h1>
+      <p id="oRoute" class="muted">—</p>
+
+      <ul class="steps" id="steps" aria-label="Delivery progress">
+        <li class="step" data-status="pending"><span class="dot">1</span><span class="label">Received</span></li>
+        <li class="step" data-status="assigned"><span class="dot">2</span><span class="label">Assigned</span></li>
+        <li class="step" data-status="picked_up"><span class="dot">3</span><span class="label">Picked up</span></li>
+        <li class="step" data-status="delivered"><span class="dot">✓</span><span class="label">Delivered</span></li>
+      </ul>
+
+      <div class="summary">
+        <div class="row"><span class="label-group">Payment</span><strong id="oPayment">—</strong></div>
+        <div class="row"><span class="label-group">Pickup</span><strong id="oPickup">—</strong></div>
+        <div class="row"><span class="label-group">Drop-off</span><strong id="oDropoff">—</strong></div>
+        <div class="row"><span class="label-group">Service</span><strong id="oService">—</strong></div>
+      </div>
+
+      <div class="photo hidden" id="photoBlock">
+        <img id="oPhoto" src="" alt="Proof of delivery photo">
+        <div class="cap">Photo taken by your driver at delivery.</div>
+      </div>
+
+      <div class="note hidden" id="cancelledNote">
+        <strong>This order was cancelled.</strong> Contact Rinko Delivery if you have questions.
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="refreshBtn" type="button">Refresh</button>
+      </div>
+      <p class="updated" id="updatedAt"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STATUS_ORDER = ["pending", "assigned", "picked_up", "delivered"];
+  const STATUS_LABEL = { pending: "Received", assigned: "Assigned", picked_up: "Picked up", delivered: "Delivered", cancelled: "Cancelled" };
+
+  const token = new URLSearchParams(location.search).get("t");
+  let refreshTimer = null;
+
+  function show(id) {
+    ["noTokenView", "loadingView", "notFoundView", "orderView"].forEach(v => {
+      document.getElementById(v).classList.toggle("hidden", v !== id);
+    });
+  }
+
+  async function loadOrder() {
+    if (!token) { show("noTokenView"); return; }
+    if (!window.rinkoClient) { show("notFoundView"); return; }
+
+    const { data, error } = await window.rinkoClient.rpc("rinko_track_order", { p_token: token });
+    const row = Array.isArray(data) ? data[0] : data;
+
+    if (error || !row) { show("notFoundView"); return; }
+
+    show("orderView");
+    document.getElementById("oTitle").textContent = "Order " + row.order_code;
+    document.getElementById("oRoute").textContent = (row.item_size || "") + " · " + (row.delivery_speed || "");
+    document.getElementById("oPickup").textContent = row.pickup_address || "—";
+    document.getElementById("oDropoff").textContent = row.dropoff_address || "—";
+    document.getElementById("oService").textContent = row.delivery_speed || "—";
+
+    const paymentEl = document.getElementById("oPayment");
+    paymentEl.innerHTML = `<span class="pill ${row.payment_status}">${row.payment_status}</span>`;
+
+    const isCancelled = row.order_status === "cancelled";
+    document.getElementById("cancelledNote").classList.toggle("hidden", !isCancelled);
+
+    const currentIndex = STATUS_ORDER.indexOf(row.order_status);
+    document.querySelectorAll("#steps .step").forEach((el, i) => {
+      el.classList.remove("done", "current");
+      if (isCancelled) return;
+      if (i < currentIndex) el.classList.add("done");
+      else if (i === currentIndex) el.classList.add("current");
+    });
+
+    const photoBlock = document.getElementById("photoBlock");
+    if (row.proof_photo_url) {
+      document.getElementById("oPhoto").src = row.proof_photo_url;
+      photoBlock.classList.remove("hidden");
+    } else {
+      photoBlock.classList.add("hidden");
+    }
+
+    document.getElementById("updatedAt").textContent = "Last updated: " + new Date(row.updated_at || row.created_at).toLocaleString();
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", loadOrder);
+
+  loadOrder();
+  refreshTimer = setInterval(loadOrder, 20000);
+</script>
+</body>
+</html>

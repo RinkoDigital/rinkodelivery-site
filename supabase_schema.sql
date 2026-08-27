@@ -131,6 +131,30 @@ create trigger rinko_orders_set_updated_at
   for each row execute procedure public.rinko_set_updated_at();
 
 -- ============================================================
+-- PART 3b — Admin-check helper (avoids RLS self-recursion)
+-- ============================================================
+-- A policy on rinko_profiles that queries rinko_profiles again (to check
+-- "is this user an admin?") causes Postgres to report "infinite recursion
+-- detected in policy for relation rinko_profiles" — it errors out during
+-- planning rather than proving the subquery terminates. The fix is a
+-- SECURITY DEFINER function: it runs as the function's owner (the table
+-- owner), which bypasses RLS on the inner query, so the outer policy's
+-- check no longer re-triggers itself.
+
+create or replace function public.rinko_is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1 from public.rinko_profiles
+    where id = auth.uid() and role = 'admin' and active = true
+  );
+$$;
+
+-- ============================================================
 -- PART 4 — Policies (drop + recreate so this file is re-runnable)
 -- ============================================================
 
@@ -155,8 +179,8 @@ using (true);
 
 create policy "Admin can update settings"
 on public.rinko_settings for update
-using (exists (select 1 from public.rinko_profiles p where p.id = auth.uid() and p.role = 'admin' and p.active = true))
-with check (exists (select 1 from public.rinko_profiles p where p.id = auth.uid() and p.role = 'admin' and p.active = true));
+using (public.rinko_is_admin())
+with check (public.rinko_is_admin());
 
 create policy "Public can read active coupons"
 on public.rinko_coupons for select
@@ -164,8 +188,8 @@ using (active = true);
 
 create policy "Admin can manage coupons"
 on public.rinko_coupons for all
-using (exists (select 1 from public.rinko_profiles p where p.id = auth.uid() and p.role = 'admin' and p.active = true))
-with check (exists (select 1 from public.rinko_profiles p where p.id = auth.uid() and p.role = 'admin' and p.active = true));
+using (public.rinko_is_admin())
+with check (public.rinko_is_admin());
 
 -- Profiles: everyone can read their own row (needed so the admin/
 -- contractor dashboards can tell which screen to show); only an
@@ -177,12 +201,12 @@ using (auth.uid() = id);
 
 create policy "Admins can read all profiles"
 on public.rinko_profiles for select
-using (exists (select 1 from public.rinko_profiles p where p.id = auth.uid() and p.role = 'admin' and p.active = true));
+using (public.rinko_is_admin());
 
 create policy "Admins can manage contractor profiles"
 on public.rinko_profiles for update
-using (exists (select 1 from public.rinko_profiles p where p.id = auth.uid() and p.role = 'admin' and p.active = true))
-with check (exists (select 1 from public.rinko_profiles p where p.id = auth.uid() and p.role = 'admin' and p.active = true));
+using (public.rinko_is_admin())
+with check (public.rinko_is_admin());
 
 -- Orders: no public policy at all — the Netlify Functions write and
 -- read using the service role key, which ignores RLS entirely. From
@@ -190,12 +214,12 @@ with check (exists (select 1 from public.rinko_profiles p where p.id = auth.uid(
 -- edits only the orders assigned to them.
 create policy "Admins can read all orders"
 on public.rinko_orders for select
-using (exists (select 1 from public.rinko_profiles p where p.id = auth.uid() and p.role = 'admin' and p.active = true));
+using (public.rinko_is_admin());
 
 create policy "Admins can update all orders"
 on public.rinko_orders for update
-using (exists (select 1 from public.rinko_profiles p where p.id = auth.uid() and p.role = 'admin' and p.active = true))
-with check (exists (select 1 from public.rinko_profiles p where p.id = auth.uid() and p.role = 'admin' and p.active = true));
+using (public.rinko_is_admin())
+with check (public.rinko_is_admin());
 
 create policy "Contractors can read assigned orders"
 on public.rinko_orders for select
@@ -205,3 +229,74 @@ create policy "Contractors can update assigned orders"
 on public.rinko_orders for update
 using (assigned_contractor = auth.uid())
 with check (assigned_contractor = auth.uid());
+
+-- ============================================================
+-- PART 5 — Customer tracking link + proof-of-delivery photo
+-- ============================================================
+-- Adds a random, unguessable token per order (separate from the
+-- sequential order_code) and a place to store the delivery photo URL.
+-- Customers never get a Supabase login — they access their own order
+-- only through this token, via the rinko_track_order() function below,
+-- which returns just a handful of safe columns and nothing if the
+-- token doesn't match. This avoids opening a public RLS policy on
+-- rinko_orders (which would expose every customer's name/address to
+-- anyone who could enumerate rows).
+
+alter table public.rinko_orders
+  add column if not exists tracking_token text unique
+  default replace(gen_random_uuid()::text, '-', '');
+
+alter table public.rinko_orders
+  add column if not exists proof_photo_url text;
+
+update public.rinko_orders
+set tracking_token = replace(gen_random_uuid()::text, '-', '')
+where tracking_token is null;
+
+create or replace function public.rinko_track_order(p_token text)
+returns table (
+  order_code text,
+  order_status text,
+  payment_status text,
+  pickup_address text,
+  dropoff_address text,
+  item_size text,
+  delivery_speed text,
+  proof_photo_url text,
+  created_at timestamptz,
+  updated_at timestamptz
+)
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select order_code, order_status, payment_status, pickup_address, dropoff_address,
+         item_size, delivery_speed, proof_photo_url, created_at, updated_at
+  from public.rinko_orders
+  where tracking_token = p_token
+  limit 1;
+$$;
+
+grant execute on function public.rinko_track_order(text) to anon, authenticated;
+
+-- Storage bucket for delivery-proof photos taken by contractors.
+-- Public bucket: anyone with the exact file URL can view it (fine —
+-- it's just a photo of a package at a doorstep, and the URL is only
+-- ever shared via the tracking link / admin dashboard). Only logged-in
+-- accounts (admin or contractor — the only auth.users in this app) can
+-- upload.
+insert into storage.buckets (id, name, public)
+values ('delivery-proofs', 'delivery-proofs', true)
+on conflict (id) do nothing;
+
+drop policy if exists "Contractors can upload delivery proofs" on storage.objects;
+create policy "Contractors can upload delivery proofs"
+on storage.objects for insert
+to authenticated
+with check (bucket_id = 'delivery-proofs');
+
+drop policy if exists "Public can view delivery proofs" on storage.objects;
+create policy "Public can view delivery proofs"
+on storage.objects for select
+using (bucket_id = 'delivery-proofs');

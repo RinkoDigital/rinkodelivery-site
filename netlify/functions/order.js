@@ -189,6 +189,19 @@ async function saveOrderToDatabase({ orderId, name, email, phone, company, picku
 // Returns null (never throws) if Stripe isn't configured yet, or the
 // order couldn't be saved to the database (nothing to reconcile the
 // payment against later).
+function getOrigin(event) {
+  return process.env.SITE_URL || (event.headers && (event.headers.origin || event.headers.Origin)) || "https://www.rinkodelivery.com";
+}
+
+// Builds the public tracking link for an order, if it has a token
+// (it always will once supabase_schema.sql PART 5 has been run — the
+// column has a default — but stays optional so older rows / a
+// not-yet-migrated database never crash the order flow).
+function trackingUrlFor(origin, orderRow) {
+  if (!orderRow || !orderRow.tracking_token) return null;
+  return `${origin}/rastreio.html?t=${encodeURIComponent(orderRow.tracking_token)}`;
+}
+
 async function createCheckout({ orderRow, event, name, email }) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey || !orderRow) return null;
@@ -197,10 +210,11 @@ async function createCheckout({ orderRow, event, name, email }) {
     const Stripe = require("stripe");
     const stripe = Stripe(secretKey);
 
-    const origin = process.env.SITE_URL || (event.headers && (event.headers.origin || event.headers.Origin)) || "https://rinkodelivery.com";
+    const origin = getOrigin(event);
     const amountCents = Math.round(Number(orderRow.total) * 100);
     if (!Number.isFinite(amountCents) || amountCents <= 0) return null;
 
+    const trackParam = orderRow.tracking_token ? `&t=${encodeURIComponent(orderRow.tracking_token)}` : "";
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: emailIsValid(email) ? email : undefined,
@@ -216,7 +230,7 @@ async function createCheckout({ orderRow, event, name, email }) {
         quantity: 1
       }],
       metadata: { order_id: orderRow.id, order_code: orderRow.order_code },
-      success_url: `${origin}/thank-you.html?order=${encodeURIComponent(orderRow.order_code)}&paid=1&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/thank-you.html?order=${encodeURIComponent(orderRow.order_code)}&paid=1${trackParam}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/order.html?cancelled=1`
     });
 
@@ -291,10 +305,13 @@ exports.handler = async (event) => {
   });
 
   const checkoutUrl = await createCheckout({ orderRow, event, name, email });
+  const origin = getOrigin(event);
+  const trackingUrl = trackingUrlFor(origin, orderRow);
 
   const fields = [
     ["Order ID", orderId],
     ["Saved to database", orderRow ? "Yes" : "NO — check Supabase configuration"],
+    ["Tracking link", trackingUrl || "N/A (order not saved to database)"],
     ["Customer", name],
     ["Email", email],
     ["Phone", phone],
@@ -362,24 +379,24 @@ exports.handler = async (event) => {
           toEmail: email,
           toName: name,
           subject: `Rinko Delivery request received — ${orderId}`,
-          htmlContent: `<div style="font-family:Arial,sans-serif;color:#17304d"><h2>Request received</h2><p>Hi ${escapeHtml(name)},</p><p>We received your delivery request <strong>${escapeHtml(orderId)}</strong>.</p><p>Estimated total: <strong>${escapeHtml(total)}</strong></p><p>We will review the route and availability before confirming pickup.</p></div>`,
-          textContent: `Hi ${name},\n\nWe received your delivery request ${orderId}.\nEstimated total: ${total}\n\nWe will review the route and availability before confirming pickup.`,
+          htmlContent: `<div style="font-family:Arial,sans-serif;color:#17304d"><h2>Request received</h2><p>Hi ${escapeHtml(name)},</p><p>We received your delivery request <strong>${escapeHtml(orderId)}</strong>.</p><p>Estimated total: <strong>${escapeHtml(total)}</strong></p><p>We will review the route and availability before confirming pickup.</p>${trackingUrl ? `<p><a href="${escapeHtml(trackingUrl)}" style="color:#ff8a2a;font-weight:bold;">Track your delivery</a></p>` : ""}</div>`,
+          textContent: `Hi ${name},\n\nWe received your delivery request ${orderId}.\nEstimated total: ${total}\n\nWe will review the route and availability before confirming pickup.${trackingUrl ? `\n\nTrack your delivery: ${trackingUrl}` : ""}`,
           replyTo: { email: notifyEmail(), name: "Rinko Delivery" },
           tag: "website-order-autoreply",
           template: process.env.BREVO_ORDER_AUTOREPLY_TEMPLATE_ID,
-          params: { ORDER_ID: orderId, NAME: name, TOTAL: total }
+          params: { ORDER_ID: orderId, NAME: name, TOTAL: total, TRACKING_URL: trackingUrl || "" }
         });
       } catch (error) {
         console.error("Brevo order auto-reply failed:", error.message);
       }
     }
 
-    return json(event, 200, { ok: true, orderId, checkoutUrl });
+    return json(event, 200, { ok: true, orderId, checkoutUrl, trackingUrl, trackingToken: orderRow ? orderRow.tracking_token : null });
   } catch (error) {
     console.error("Brevo order notification failed:", error.message);
     // The order may already be safely saved in Supabase and/or Stripe even
     // though the notification email failed — don't hide the checkout link.
-    if (checkoutUrl) return json(event, 200, { ok: true, orderId, checkoutUrl, emailWarning: true });
+    if (checkoutUrl) return json(event, 200, { ok: true, orderId, checkoutUrl, trackingUrl, trackingToken: orderRow ? orderRow.tracking_token : null, emailWarning: true });
     return json(event, 500, { ok: false, error: "Unable to send the request right now" });
   }
 };

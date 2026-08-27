@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex,nofollow" />
   <title>Contractor Portal | Rinko Delivery</title>
+  <link rel="icon" type="image/png" href="site-favicon.png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/rinko-saas-config.js"></script>
   <style>
@@ -144,8 +145,15 @@
 
     list.innerHTML = data.map(o => {
       const nextStatus = ORDER_FLOW[ORDER_FLOW.indexOf(o.order_status) + 1];
-      const nextBtn = (o.order_status !== "delivered" && o.order_status !== "cancelled" && nextStatus)
-        ? `<button onclick="advanceStatus('${o.id}', '${nextStatus}')">Mark as ${STATUS_LABEL[nextStatus]}</button>`
+      let nextBtn = "";
+      if (o.order_status !== "delivered" && o.order_status !== "cancelled" && nextStatus) {
+        nextBtn = nextStatus === "delivered"
+          ? `<input type="file" accept="image/*" capture="environment" class="hidden" id="photoInput-${o.id}" onchange="handleProofPhoto('${o.id}', this.files[0])">
+             <button type="button" onclick="document.getElementById('photoInput-${o.id}').click()">📷 Mark as Delivered (photo required)</button>`
+          : `<button onclick="advanceStatus('${o.id}', '${nextStatus}')">Mark as ${STATUS_LABEL[nextStatus]}</button>`;
+      }
+      const photo = o.proof_photo_url
+        ? `<div style="margin-top:10px;"><img src="${o.proof_photo_url}" alt="Delivery proof" style="max-width:180px;border-radius:10px;border:1px solid var(--border);display:block;"></div>`
         : "";
       return `
         <div class="order">
@@ -159,7 +167,9 @@
             ${o.preferred_time ? `<span>Preferred: ${o.preferred_time}</span>` : ""}
           </div>
           ${o.instructions ? `<p class="muted">Notes: ${o.instructions}</p>` : ""}
-          <div class="actions">${nextBtn}</div>
+          <div class="actions" id="actions-${o.id}">${nextBtn}</div>
+          <p class="msg" id="photoMsg-${o.id}"></p>
+          ${photo}
         </div>
       `;
     }).join("");
@@ -169,6 +179,42 @@
     const { error } = await client.from("rinko_orders").update({ order_status: status }).eq("id", orderId);
     if (error) alert(error.message);
     await loadOrders();
+  }
+
+  // Delivery proof: uploads the photo to Supabase Storage first, then
+  // only marks the order "delivered" if the upload succeeded — so a
+  // failed upload never silently loses the proof photo.
+  async function handleProofPhoto(orderId, file) {
+    if (!file) return;
+    const msg = document.getElementById(`photoMsg-${orderId}`);
+    if (msg) { msg.style.color = "#17304d"; msg.textContent = "Uploading photo..."; }
+
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+      const path = `${orderId}/${Date.now()}-${safeName}`;
+
+      const { error: uploadError } = await client.storage.from("delivery-proofs").upload(path, file, { upsert: false, contentType: file.type || "image/jpeg" });
+      if (uploadError) {
+        if (msg) { msg.style.color = "#8a1f1f"; msg.textContent = "Photo upload failed: " + uploadError.message; }
+        return;
+      }
+
+      const { data: urlData } = client.storage.from("delivery-proofs").getPublicUrl(path);
+      const { error: updateError } = await client
+        .from("rinko_orders")
+        .update({ order_status: "delivered", proof_photo_url: urlData.publicUrl })
+        .eq("id", orderId);
+
+      if (updateError) {
+        if (msg) { msg.style.color = "#8a1f1f"; msg.textContent = "Photo uploaded, but could not update the order: " + updateError.message; }
+        return;
+      }
+
+      if (msg) { msg.style.color = "#17602a"; msg.textContent = "Delivered — photo saved."; }
+      await loadOrders();
+    } catch (error) {
+      if (msg) { msg.style.color = "#8a1f1f"; msg.textContent = "Error: " + error.message; }
+    }
   }
 
   checkSession();
