@@ -355,6 +355,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <li><a href="#why-us">Why Us</a></li>
           <li><a href="#pricing">Pricing</a></li>
           <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="business.html">For Business</a></li>
           <li><a href="order.html">Order Portal</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
@@ -404,6 +405,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="tile wide">
               <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
               <div><div class="mini-title">Confirmed by email/phone</div><div class="mini-sub">No surprise changes</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="choose-path">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="eyebrow">Two Ways To Work With Us</div>
+          <h2>One-time delivery or a recurring contract — you choose.</h2>
+          <p>Need a single delivery? Get an instant price and request it below. Does your business deliver every day or every week? See how our B2B contracts work.</p>
+        </div>
+        <div class="bento-2">
+          <div class="tile reveal">
+            <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg></div>
+            <h3>I need a delivery right now</h3>
+            <p>Instant quote, pay per delivery. Ideal for individuals, a one-off delivery, or trying out the service.</p>
+            <div class="hero-actions" style="margin-top:18px;">
+              <a class="btn" href="#pricing">Get Instant Price</a>
+              <a class="btn-outline" href="order.html">Request Delivery</a>
+            </div>
+          </div>
+          <div class="tile reveal">
+            <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M9 9V6a3 3 0 016 0v3M3 13h18"/></svg></div>
+            <h3>My business needs recurring deliveries</h3>
+            <p>Monthly contract with consolidated invoicing and volume-based pricing — no card charge per delivery.</p>
+            <div class="hero-actions" style="margin-top:18px;">
+              <a class="btn" href="business.html">See B2B Contract Options</a>
             </div>
           </div>
         </div>
@@ -468,7 +498,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="tile svc-big reveal">
             <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
             <h3>Business Delivery Support & Custom Requests</h3>
-            <p>An extra driver for stores and offices, or something more specific — send the details through the contact form and we'll review it directly.</p>
+            <p>An extra driver for stores and offices, or a recurring monthly contract with volume pricing — <a href="business.html" style="color:var(--orange);font-weight:700;text-decoration:underline;">see how B2B contracts work →</a></p>
           </div>
         </div>
       </div>
@@ -977,59 +1007,63 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  const form = document.getElementById("contact-form");
+  function wireLeadForm(form, termsCheckboxId, termsErrorId, eventLabel) {
+    if (!form) return;
 
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    const termsBox = document.getElementById("contactTermsAgreement");
-    const termsError = document.getElementById("contactTermsError");
-    if (!form.checkValidity() || (termsBox && !termsBox.checked)) {
-      if (termsError) termsError.classList.add("show");
-      if (termsBox && !termsBox.checked) {
-        termsBox.focus();
-        termsBox.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-      if (form.reportValidity) form.reportValidity();
-      return;
-    }
-    if (termsError) termsError.classList.remove("show");
-
-    const data = Object.fromEntries(new FormData(form).entries());
-    const submitButton = form.querySelector('button[type="submit"]');
-    const originalText = submitButton ? submitButton.textContent : "";
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.textContent = "Sending...";
-    }
-
-    try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json"
+      const termsBox = document.getElementById(termsCheckboxId);
+      const termsError = document.getElementById(termsErrorId);
+      if (!form.checkValidity() || (termsBox && !termsBox.checked)) {
+        if (termsError) termsError.classList.add("show");
+        if (termsBox && !termsBox.checked) {
+          termsBox.focus();
+          termsBox.scrollIntoView({ behavior: "smooth", block: "center" });
         }
-      });
-
-      if (!response.ok) throw new Error("Contact request was not accepted");
-
-      // 📊 RASTREAMENTO DE LEAD
-      gtag('event', 'form_submit', {
-        'event_category': 'lead',
-        'event_label': 'contact_form'
-      });
-
-      window.location.href = "/quote-thank-you.html";
-    } catch (error) {
-      alert("We could not send your request right now. Please try again or email rinkodanna@gmail.com.");
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
+        if (form.reportValidity) form.reportValidity();
+        return;
       }
-    }
-  });
+      if (termsError) termsError.classList.remove("show");
+
+      const data = Object.fromEntries(new FormData(form).entries());
+      const submitButton = form.querySelector('button[type="submit"]');
+      const originalText = submitButton ? submitButton.textContent : "";
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Sending...";
+      }
+
+      try {
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (!response.ok) throw new Error("Contact request was not accepted");
+
+        // 📊 RASTREAMENTO DE LEAD
+        gtag('event', 'form_submit', {
+          'event_category': 'lead',
+          'event_label': eventLabel
+        });
+
+        window.location.href = "/quote-thank-you.html";
+      } catch (error) {
+        alert("We could not send your request right now. Please try again or email rinkodanna@gmail.com.");
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = originalText;
+        }
+      }
+    });
+  }
+
+  wireLeadForm(document.getElementById("contact-form"), "contactTermsAgreement", "contactTermsError", "contact_form");
 </script>
 
 

@@ -88,6 +88,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
 
     .brand img { height:40px; width:auto; }
+    .brand span { display:none; }
 
     .pill {
       border:1px solid var(--border);
@@ -371,7 +372,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="shell">
     <header>
       <a class="brand" href="index.html">
-        <img src="site-logo-header.png" alt="Rinko Delivery logo" onerror="this.style.display='none'">
+        <img src="site-logo-header.png" alt="Rinko Delivery logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
         <span>Rinko Delivery</span>
       </a>
       <a class="pill" href="index.html">Back to Website</a>

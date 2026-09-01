@@ -30,6 +30,8 @@ exports.handler = async (event) => {
   const service = clean(data.service_needed, 120);
   const message = clean(data.message, 4000);
   const terms = clean(data.terms_agreement, 80);
+  const estimatedVolume = clean(data.estimated_volume, 120);
+  const routesNeeded = clean(data.routes_needed, 200);
 
   if (!name || !email || !service || !message || terms.toLowerCase() !== "accepted" || !emailIsValid(email)) {
     return json(event, 400, { ok: false, error: "Please complete the required fields" });
@@ -40,11 +42,15 @@ exports.handler = async (event) => {
     ["Email", email],
     ["Company", company],
     ["Service requested", service],
+    ...(estimatedVolume ? [["Estimated monthly volume", estimatedVolume]] : []),
+    ...(routesNeeded ? [["Routes / areas needed", routesNeeded]] : []),
     ["Message", message],
     ["Agreement", "Accepted"]
   ];
-  const html = `<div style="font-family:Arial,sans-serif;color:#17304d"><h2>New Rinko Delivery quote request</h2><table style="border-collapse:collapse">${htmlRows(fields)}</table></div>`;
-  const text = `New Rinko Delivery quote request\n\n${textRows(fields)}`;
+  const isB2b = service.toLowerCase().includes("b2b");
+  const leadTitle = isB2b ? "New Rinko Delivery B2B contract inquiry" : "New Rinko Delivery quote request";
+  const html = `<div style="font-family:Arial,sans-serif;color:#17304d"><h2>${leadTitle}</h2><table style="border-collapse:collapse">${htmlRows(fields)}</table></div>`;
+  const text = `${leadTitle}\n\n${textRows(fields)}`;
 
   try {
     await upsertContact(email, process.env.BREVO_CONTACT_LIST_ID);
@@ -52,7 +58,7 @@ exports.handler = async (event) => {
     await sendEmail({
       toEmail: notifyEmail(),
       toName: "Rinko Delivery",
-      subject: `New quote request from ${name}`,
+      subject: isB2b ? `[B2B] Contract inquiry from ${name}${company ? " (" + company + ")" : ""}` : `New quote request from ${name}`,
       htmlContent: html,
       textContent: text,
       replyTo: { email, name },
